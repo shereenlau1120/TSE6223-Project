@@ -43,7 +43,7 @@ if (isset($_POST['signup'])) {
 
     $hashed = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO users (fullname, email, phone, password, role)
+    $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone_number, password, role)
                             VALUES (?, ?, ?, ?, 'tenant')");
 
     $stmt->bind_param("ssss", $fullname, $email, $phone, $hashed);
@@ -87,6 +87,9 @@ if (isset($_POST['login'])) {
 
     } else {
         $_SESSION['alert'] = ['message' => 'Invalid email or password!', 'type' => 'error'];
+
+        header("Location: login.php"); 
+        exit(); 
     }
 }
 ?>
@@ -128,7 +131,14 @@ if (isset($_POST['login'])) {
     </title>
   </head>
   <body>
-    <div id="alertBox" class="alert-box"></div>
+    <!-- Dark background overlay -->
+<div id="alertOverlay" class="alert-overlay"></div>
+
+<!-- Alert Box -->
+<div id="alertBox" class="alert-box">
+  <div id="alertMessage"></div>
+  <button onclick="closeAlert()" class="alert-btn">OK</button>
+</div>
     <div class="site-mobile-menu site-navbar-target">
       <div class="site-mobile-menu-header">
         <div class="site-mobile-menu-close">
@@ -435,25 +445,45 @@ if (isset($_POST['login'])) {
     <script src="js/signupform.js"></script>
 
     <!-- For the alert box -->
+
     <script>
-    function showAlert(message, type = "info") {
+function showAlert(message, type = "info") {
     const box = document.getElementById("alertBox");
+    const msg = document.getElementById("alertMessage");
+    const overlay = document.getElementById("alertOverlay");
+
+    msg.innerText = message;
 
     box.className = "alert-box alert-" + type;
-    box.innerText = message;
-    box.style.display = "block";
 
-    setTimeout(() => {
-        box.style.display = "none";
-    }, 3000);
+    box.style.display = "block";
+    overlay.style.display = "block";
+
+    window.shouldRedirect = true;
+}
+
+function closeAlert() {
+    const box = document.getElementById("alertBox");
+    const overlay = document.getElementById("alertOverlay");
+
+    box.style.display = "none";
+    overlay.style.display = "none";
+
+    if (window.shouldRedirect) {
+        window.shouldRedirect = false;
+        window.location.href = "login.php";
     }
-    </script>
+}
+</script>
 
 <?php if ($alert): ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        showAlert("<?= $alert['message'] ?>", "<?= $alert['type'] ?>");
-    });
+        if (!window.alertShown) {
+        window.alertShown = true;
+        showAlert("<?= addslashes($alert['message']) ?>", "<?= $alert['type'] ?>");
+    }
+});
 </script>
 <?php endif; ?>
   </body>
