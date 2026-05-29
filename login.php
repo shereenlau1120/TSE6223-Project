@@ -10,44 +10,49 @@ if (isset($_POST['signup'])) {
     } else {
 
         $stmt = $conn->prepare("INSERT INTO users (fullname, email, phone, password, role)
-                        VALUES (:fullname, :email, :phone, :password, 'tenant')");
+                                VALUES (?, ?, ?, ?, 'tenant')");
 
-        $stmt->execute([
-            ':fullname' => $_POST['fullname'],
-            ':email' => $_POST['email'],
-            ':phone' => $_POST['phone'],
-            ':password' => password_hash($_POST['password'], PASSWORD_DEFAULT)
-        ]);
+        $hashed = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-        echo "<script>showAlert('Signup successful! Please login.', 'success');</script>";
+        $stmt->bind_param(
+            "ssss",
+            $_POST['fullname'],
+            $_POST['email'],
+            $_POST['phone'],
+            $hashed
+        );
+
+        if ($stmt->execute()) {
+            echo "<script>showAlert('Signup successful!', 'success');</script>";
+        } else {
+            echo "<script>showAlert('Signup failed!', 'error');</script>";
+        }
     }
 }
 
 //For login checking
 if (isset($_POST['login'])) {
 
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email");
-    $stmt->execute([':email' => $_POST['email']]);
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
 
-    if ($user && password_verify($_POST['password'], $user['password'])) {
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
 
-        // Store session
+    if ($user && password_verify($password, $user['password'])) {
+
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['fullname'];
         $_SESSION['role'] = $user['role'];
 
-        // ✅ ROLE-BASED REDIRECT
         if ($user['role'] == 'admin') {
             header("Location: admin_dashboard.php");
             exit();
-        } 
-        else if ($user['role'] == 'tenant') {
-            header("Location: index.html"); // homepage
-            exit();
-        } 
-        else {
+        } else {
             header("Location: index.html");
             exit();
         }
@@ -179,11 +184,11 @@ if (isset($_POST['login'])) {
           <form action="login.php" method="POST" class="login">
             <div class="field">
               <label>Email Address <span class="required">*</span></label>
-              <input type="text" placeholder="Enter your email address" required>
+              <input type="text" name="email" placeholder="Enter your email address" required>
             </div>
             <div class="field">
               <label>Password <span class="required">*</span></label>
-              <input type="password" placeholder="Enter your password" required>
+              <input type="password" name="password" placeholder="Enter your password" required>
             </div>
             <div class="pass-link"><a href="#">Forgot password?</a></div>
             <div class="field loginbtn">
@@ -195,24 +200,24 @@ if (isset($_POST['login'])) {
           <form action="login.php" method="POST" class="signup">
             <div class="field">
             <label>Full Name <span class="required">*</span></label>
-            <input type="text" placeholder="Full name, e.g. Ali binti Mohamad" required>
+            <input type="text" name="fullname" placeholder="Full name, e.g. Ali binti Mohamad" required>
             </div>
             <div class="field">
               <label>Email Address <span class="required">*</span></label>
-              <input type="text" placeholder="Email Address, e.g. aliabu@gmail.com" required>
+              <input type="text" name="email" placeholder="Email Address, e.g. aliabu@gmail.com" required>
             </div>
             <div class="field">
               <label>Phone Number <span class="required">*</span></label>
-              <input type="tel" placeholder="Phone Number, e.g. 012-3456789" required>
+              <input type="tel" name="phone" placeholder="Phone Number, e.g. 012-3456789" required>
             </div>
             <div class="field">
               <label>Password <span class="required">*</span></label>
               <small class="field-hint">Must contain at least 8 characters, including uppercase, lowercase letters and numbers.</small>
-              <input type="password" placeholder="Password" required>
+              <input type="password" name="password" placeholder="Password" required>
             </div>
             <div class="field">
               <label>Confirm Password <span class="required">*</span></label>
-              <input type="password" placeholder="Confirm password" required>
+              <input type="password" name="confirm_password" placeholder="Confirm password" required>
             </div>
             <div class="field loginbtn">
               <div class="btn-layer"></div>
