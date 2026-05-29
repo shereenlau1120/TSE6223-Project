@@ -435,23 +435,26 @@ if (isset($_POST['login'])) {
     <script src="js/signupform.js"></script>
 
     <!-- For the alert box -->
-     <script>
-      function showAlert(message, type = "info") {
-      const box = document.getElementById("alertBox");
+    <script>
+    function showAlert(message, type = "info") {
+    const box = document.getElementById("alertBox");
 
-      box.className = "alert-box alert-" + type;
-      box.innerText = message;
-      box.style.display = "block";
+    box.className = "alert-box alert-" + type;
+    box.innerText = message;
+    box.style.display = "block";
 
-      setTimeout(() => {
+    setTimeout(() => {
         box.style.display = "none";
-      }, 3000);
+    }, 3000);
     }
-    <?php if ($alert): ?>
+    </script>
+
+<?php if ($alert): ?>
 <script>
-    showAlert("<?= $alert['message'] ?>", "<?= $alert['type'] ?>");
+    document.addEventListener("DOMContentLoaded", function () {
+        showAlert("<?= $alert['message'] ?>", "<?= $alert['type'] ?>");
+    });
 </script>
 <?php endif; ?>
-</script>
   </body>
 </html>
