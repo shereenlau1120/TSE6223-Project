@@ -2,32 +2,60 @@
 session_start();
 include 'databaseconnection.php';
 
+$alert = null;
+
+if (isset($_SESSION['alert'])) {
+    $alert = $_SESSION['alert'];
+    unset($_SESSION['alert']); // important: show once only
+}
+
 // For SignUp checking
 if (isset($_POST['signup'])) {
 
-    if ($_POST['password'] !== $_POST['confirm_password']) {
-        echo "<script>showAlert('Passwords do not match!', 'error');</script>";
-    } else {
+    $fullname = $_POST['fullname'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
 
-        $stmt = $conn->prepare("INSERT INTO users (fullname, email, phone, password, role)
-                                VALUES (?, ?, ?, ?, 'tenant')");
-
-        $hashed = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-        $stmt->bind_param(
-            "ssss",
-            $_POST['fullname'],
-            $_POST['email'],
-            $_POST['phone'],
-            $hashed
-        );
-
-        if ($stmt->execute()) {
-            echo "<script>showAlert('Signup successful!', 'success');</script>";
-        } else {
-            echo "<script>showAlert('Signup failed!', 'error');</script>";
-        }
+    // validation
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['alert'] = ['message' => 'Invalid email format!', 'type' => 'error'];
+        header("Location: login.php");
+        exit();
     }
+
+    if (!preg_match('/^[0-9]{11,12}$/', $phone)) {
+        $_SESSION['alert'] = ['message' => 'Phone must be 11–12 digits!', 'type' => 'error'];
+        header("Location: login.php");
+        exit();
+    }
+
+    if (!preg_match('/^[a-zA-Z\s]+$/', $fullname)) {
+        $_SESSION['alert'] = ['message' => 'Name must contain letters only!', 'type' => 'error'];
+        header("Location: login.php");
+        exit();
+    }
+
+    if ($_POST['password'] !== $_POST['confirm_password']) {
+        $_SESSION['alert'] = ['message' => 'Passwords do not match!', 'type' => 'error'];
+        header("Location: login.php");
+        exit();
+    }
+
+    $hashed = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+    $stmt = $conn->prepare("INSERT INTO users (fullname, email, phone, password, role)
+                            VALUES (?, ?, ?, ?, 'tenant')");
+
+    $stmt->bind_param("ssss", $fullname, $email, $phone, $hashed);
+
+    if ($stmt->execute()) {
+        $_SESSION['alert'] = ['message' => 'Signup successful!', 'type' => 'success'];
+    } else {
+        $_SESSION['alert'] = ['message' => 'Signup failed!', 'type' => 'error'];
+    }
+
+    header("Location: login.php");
+    exit();
 }
 
 //For login checking
@@ -418,7 +446,12 @@ if (isset($_POST['login'])) {
       setTimeout(() => {
         box.style.display = "none";
       }, 3000);
-      }
+    }
+    <?php if ($alert): ?>
+<script>
+    showAlert("<?= $alert['message'] ?>", "<?= $alert['type'] ?>");
+</script>
+<?php endif; ?>
 </script>
   </body>
 </html>
