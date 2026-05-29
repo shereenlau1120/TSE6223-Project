@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 
+body {
+    background-color: #f4f6f9;
+}
+
 ::selection{
   background: #1a75ff;
   color: #fff;
