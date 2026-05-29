@@ -86,7 +86,7 @@ if (isset($_POST['login'])) {
         }
 
     } else {
-        echo "<script>showAlert('Invalid email or password!', 'error');</script>";
+        $_SESSION['alert'] = ['message' => 'Invalid email or password!', 'type' => 'error'];
     }
 }
 ?>
