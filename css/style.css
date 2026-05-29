@@ -10376,3 +10376,43 @@ nav[aria-label="breadcrumb"] li:before {
       .site-footer .social li a:hover {
         background: #00204a;
         color: #fff; }
+
+.alert-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 280px;
+  max-width: 350px;
+  padding: 15px 20px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  display: none;
+  z-index: 9999;
+  animation: slideIn 0.4s ease;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.alert-error {
+  background: linear-gradient(135deg, #dc3545, #ff4d4d);
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

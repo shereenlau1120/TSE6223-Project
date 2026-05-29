@@ -1,3 +1,63 @@
+<?php
+session_start();
+include 'databaseconnection.php';
+
+// For SignUp checking
+if (isset($_POST['signup'])) {
+
+    if ($_POST['password'] !== $_POST['confirm_password']) {
+        echo "<script>showAlert('Passwords do not match!', 'error');</script>";
+    } else {
+
+        $stmt = $conn->prepare("INSERT INTO users (fullname, email, phone, password, role)
+                        VALUES (:fullname, :email, :phone, :password, 'tenant')");
+
+        $stmt->execute([
+            ':fullname' => $_POST['fullname'],
+            ':email' => $_POST['email'],
+            ':phone' => $_POST['phone'],
+            ':password' => password_hash($_POST['password'], PASSWORD_DEFAULT)
+        ]);
+
+        echo "<script>showAlert('Signup successful! Please login.', 'success');</script>";
+    }
+}
+
+//For login checking
+if (isset($_POST['login'])) {
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email");
+    $stmt->execute([':email' => $_POST['email']]);
+
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user && password_verify($_POST['password'], $user['password'])) {
+
+        // Store session
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['fullname'];
+        $_SESSION['role'] = $user['role'];
+
+        // ✅ ROLE-BASED REDIRECT
+        if ($user['role'] == 'admin') {
+            header("Location: admin_dashboard.php");
+            exit();
+        } 
+        else if ($user['role'] == 'tenant') {
+            header("Location: index.html"); // homepage
+            exit();
+        } 
+        else {
+            header("Location: index.html");
+            exit();
+        }
+
+    } else {
+        echo "<script>showAlert('Invalid email or password!', 'error');</script>";
+    }
+}
+?>
+
 <!-- /*
 * Template Name: Property
 * Template Author: Untree.co
@@ -35,6 +95,7 @@
     </title>
   </head>
   <body>
+    <div id="alertBox" class="alert-box"></div>
     <div class="site-mobile-menu site-navbar-target">
       <div class="site-mobile-menu-header">
         <div class="site-mobile-menu-close">
@@ -115,7 +176,7 @@
           <div class="slider-tab"></div>
         </div>
         <div class="form-inner">
-          <form action="#" class="login">
+          <form action="login.php" method="POST" class="login">
             <div class="field">
               <label>Email Address <span class="required">*</span></label>
               <input type="text" placeholder="Enter your email address" required>
@@ -127,11 +188,11 @@
             <div class="pass-link"><a href="#">Forgot password?</a></div>
             <div class="field loginbtn">
               <div class="btn-layer"></div>
-              <input type="submit" value="Login">
+              <input type="submit" name="login" value="Login">
             </div>
             <div class="signup-link">Haven't an account? <a href="">Signup now</a></div>
           </form>
-          <form action="#" class="signup">
+          <form action="login.php" method="POST" class="signup">
             <div class="field">
             <label>Full Name <span class="required">*</span></label>
             <input type="text" placeholder="Full name, e.g. Ali binti Mohamad" required>
@@ -155,7 +216,7 @@
             </div>
             <div class="field loginbtn">
               <div class="btn-layer"></div>
-              <input type="submit" value="Signup">
+              <input type="submit" name="signup" value="Sign Up">
             </div>
           </form>
         </div>
@@ -339,5 +400,20 @@
     <script src="js/counter.js"></script>
     <script src="js/custom.js"></script>
     <script src="js/signupform.js"></script>
+
+    <!-- For the alert box -->
+     <script>
+      function showAlert(message, type = "info") {
+      const box = document.getElementById("alertBox");
+
+      box.className = "alert-box alert-" + type;
+      box.innerText = message;
+      box.style.display = "block";
+
+      setTimeout(() => {
+        box.style.display = "none";
+      }, 3000);
+      }
+</script>
   </body>
 </html>
