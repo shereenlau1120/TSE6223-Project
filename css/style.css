@@ -10379,19 +10379,25 @@ nav[aria-label="breadcrumb"] li:before {
 
 .alert-box {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+    
   min-width: 280px;
-  max-width: 350px;
-  padding: 15px 20px;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 15px;
-  font-family: 'Poppins', sans-serif;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  display: none;
+  max-width: 400px;
+  padding: 20px;
+    
+  text-align: center;
+  border-radius: 10px;
+    
   z-index: 9999;
-  animation: slideIn 0.4s ease;
+    
+  display: none;
+    
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 .alert-success {
@@ -10404,6 +10410,17 @@ nav[aria-label="breadcrumb"] li:before {
 
 .alert-info {
   background: linear-gradient(135deg, #007bff, #00c6ff);
+}
+
+.alert-btn {
+    margin-top: 15px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #fff;
+    color: #333;
+    font-weight: bold;
 }
 
 @keyframes slideIn {
