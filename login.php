@@ -74,11 +74,11 @@ if (isset($_POST['login'])) {
     if ($user && password_verify($password, $user['password'])) {
 
         $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_name'] = $user['fullname'];
+        $_SESSION['user_name'] = $user['full_name'];
         $_SESSION['role'] = $user['role'];
 
         if ($user['role'] == 'admin') {
-            header("Location: admin_dashboard.php");
+            header("Location: Admin/admindashboard.html");
             exit();
         } else {
             header("Location: index.html");
