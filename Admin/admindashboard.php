@@ -472,7 +472,7 @@ $transactionQuery = mysqli_query(
                 </div>
                     <div id="myChartLegend"></div>
                   <div class="card-body">
-                    <div class="chart-container" style="min-height: 375px, width: 100%;">
+                    <div class="chart-container" style="height:375px; width: 100%;">
                       <canvas id="statisticsChart"></canvas>
                     </div>
                   </div>
@@ -482,39 +482,31 @@ $transactionQuery = mysqli_query(
 
             <!--Summary of the income report-->
             <div class="table-responsive mt-4">
-<table class="table table-bordered">
+            <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Total Income (RM)</th>
+              </tr>
+            </thead>
 
-    <thead>
-        <tr>
-            <th>Month</th>
-            <th>Total Income (RM)</th>
-        </tr>
-    </thead>
+            <tbody>
+            <?php
+              mysqli_data_seek($monthlyIncomeQuery, 0);
 
-    <tbody>
-
-    <?php
-
-    mysqli_data_seek($monthlyIncomeQuery, 0);
-
-    while($row = mysqli_fetch_assoc($monthlyIncomeQuery))
-    {
-    ?>
-
-        <tr>
-            <td><?php echo $row['month']; ?></td>
-
-            <td>
-                RM <?php echo number_format($row['total_income'],2); ?>
-            </td>
-        </tr>
-
-    <?php } ?>
-
-    </tbody>
-
-</table>
-</div>
+              while($row = mysqli_fetch_assoc($monthlyIncomeQuery))
+              {
+            ?>
+            <tr>
+              <td><?php echo $row['month']; ?></td>
+              <td>
+                  RM <?php echo number_format($row['total_income'],2); ?>
+              </td>
+            </tr>
+            <?php } ?>
+            </tbody>
+            </table>
+          </div>
 
             <!-- customer section-->
             <div class="row">
@@ -686,78 +678,102 @@ $transactionQuery = mysqli_query(
 
     <!-- Kaiadmin JS -->
     <script src="assets/js/kaiadmin.min.js"></script>
-
-    <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-    <!--<script>
-      $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
-        type: "line",
-        height: "70",
-        width: "100%",
-        lineWidth: "2",
-        lineColor: "#177dff",
-        fillColor: "rgba(23, 125, 255, 0.14)",
-      });
-
-      $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
-        type: "line",
-        height: "70",
-        width: "100%",
-        lineWidth: "2",
-        lineColor: "#f3545d",
-        fillColor: "rgba(243, 84, 93, .14)",
-      });
-
-      $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
-        type: "line",
-        height: "70",
-        width: "100%",
-        lineWidth: "2",
-        lineColor: "#ffa534",
-        fillColor: "rgba(255, 165, 52, .14)",
-      });
-    </script>-->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    
 <script>
-
-var ctx = document.getElementById("statisticsChart");
+var ctx = document.getElementById("statisticsChart").getContext("2d");
+Chart.register(ChartDataLabels);
 new Chart(ctx, {
+    plugins: [ChartDataLabels],
     type: "bar",
 
-    data: {
-        labels: <?php echo json_encode($months); ?>,
+            data: { labels: <?php echo json_encode($months); ?>, 
+            datasets: [{ label: "Monthly Income", data: <?php echo json_encode($incomeData); ?>, 
+            backgroundColor: [ 
+            "#4BC0C0", 
+            "#36A2EB", 
+            "#1E88E5", 
+            "#F4D35E", 
+            "#FF9800", 
+            "#8E044D", 
+            "#F4435E", 
+            "#5AD17B", 
+            "#5C6BC0", 
+            "#E056D8", 
+            "#26A69A", 
+            "#7E57C2" ], 
+            
+            borderRadius: 10, 
+            borderSkipped: false, 
+            barThickness: 50, 
+            maxBarThickness: 60, 
+            barPercentage: 0.8, 
+            categoryPercentage: 0.9 
+        }] 
+    }, 
+    
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false, 
+      layout: { 
+        padding: { 
+          top: 30 } 
+        }, 
+        
+        plugins: { 
+          datalabels: { 
+            anchor: 'end', 
+            align: 'top', 
+            color: '#000', 
+            font: { 
+              weight: 'bold', 
+              size: 12 }, 
+              
+              formatter: function(value) { 
+                return 'RM ' + value; } 
+              }, 
+              
+        legend: { 
+          display: false 
+        }, 
+        
+        title: { 
+          display: true, 
+          text: "Monthly Rental Income Report", 
+          font: { 
+            size: 22, 
+            weight: 'bold' 
+          } 
+        } 
+      }, 
+      
+      scales: { 
+        y: { 
+          beginAtZero: true, 
 
-        datasets: [{
-            label: "Monthly Income (RM)",
-
-            data: <?php echo json_encode($incomeData); ?>,
-
-            backgroundColor: [
-                "#1572E8",
-                "#48ABF7",
-                "#31CE36",
-                "#FFAD46",
-                "#F25961"
-            ],
-
-            borderWidth: 1
-        }]
-    },
-
-    options: {
-        responsive: true,
-
-        plugins: {
-            legend: {
-                display: true
-            }
-        },
-
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
-});
+          title: { 
+          display: true, 
+          text: "Income (RM)" 
+        }, 
+        
+          grid: { 
+            color: "#E5E5E5" 
+          } 
+        }, 
+        
+          x: { 
+            title: { 
+              display: true, 
+              text: "Month" 
+            }, 
+            
+          grid: { 
+            display: false 
+          } 
+        } 
+      } 
+    } 
+  });
 </script>
 
 <!-- For printing the income report section -->
