@@ -193,6 +193,7 @@ $transactionQuery = mysqli_query(
           </div>
           <!-- End Logo Header -->
         </div>
+        
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
