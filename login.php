@@ -43,8 +43,8 @@ if (isset($_POST['signup'])) {
 
     $hashed = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone_number, password, role)
-                            VALUES (?, ?, ?, ?, 'tenant')");
+    $stmt = $conn->prepare("INSERT INTO users (full_name, pictures, email, phone_number, password, role)
+                            VALUES (?, 'assets/img/profile.jpg', ?, ?, ?, 'tenant')");
 
     $stmt->bind_param("ssss", $fullname, $email, $phone, $hashed);
 
@@ -75,6 +75,7 @@ if (isset($_POST['login'])) {
 
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['full_name'];
+        $_SESSION['email'] = $user['email'];
         $_SESSION['role'] = $user['role'];
 
         if ($user['role'] == 'admin') {

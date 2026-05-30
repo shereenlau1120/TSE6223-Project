@@ -7,13 +7,6 @@ $userId = $_SESSION['user_id'];
 $email = $_SESSION['email'];
 $userName = $_SESSION['user_name'];
 
-$userQuery = mysqli_query(
-    $conn,
-    "SELECT email FROM users WHERE user_id='$userId'"
-);
-
-$userData = mysqli_fetch_assoc($userQuery);
-
 // Total Tenants
 $tenantQuery = mysqli_query(
     $conn,
@@ -21,6 +14,15 @@ $tenantQuery = mysqli_query(
 );
 $totalTenants = mysqli_fetch_assoc($tenantQuery)['total'];
 
+//Display for tenant list
+$tenantListQuery = mysqli_query(
+    $conn,
+    "SELECT full_name, email, pictures
+     FROM users
+     WHERE role='tenant'
+     ORDER BY user_id DESC
+     LIMIT 5"
+);
 
 // Total Properties
 $propertyQuery = mysqli_query(
@@ -59,7 +61,7 @@ if ($totalIncome == null) {
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Kaiadmin - Bootstrap 5 Admin Dashboard</title>
+    <title>Admin Dashboard</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -218,6 +220,7 @@ if ($totalIncome == null) {
       </div>
       <!-- End Sidebar -->
 
+      <!-- Sidebar Toggle Button -->
       <div class="main-panel">
         <div class="main-header">
           <div class="main-header-logo">
@@ -255,88 +258,9 @@ if ($totalIncome == null) {
                 class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
               </nav>
 
-              <!-- For Top Bar Notification Section -->
+              <!-- For Top Bar Logout Section -->
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-                <li class="nav-item topbar-icon dropdown hidden-caret">
-                  <a
-                    class="nav-link dropdown-toggle"
-                    href="#"
-                    id="notifDropdown"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    <i class="fa fa-bell"></i>
-                    <span class="notification">4</span>
-                  </a>
-                  <ul
-                    class="dropdown-menu notif-box animated fadeIn"
-                    aria-labelledby="notifDropdown"
-                  >
-                    <li>
-                      <div class="dropdown-title">
-                        You have 4 new notification
-                      </div>
-                    </li>
-                    <li>
-                      <div class="notif-scroll scrollbar-outer">
-                        <div class="notif-center">
-                          <a href="#">
-                            <div class="notif-icon notif-primary">
-                              <i class="fa fa-user-plus"></i>
-                            </div>
-                            <div class="notif-content">
-                              <span class="block"> New user registered </span>
-                              <span class="time">5 minutes ago</span>
-                            </div>
-                          </a>
-                          <a href="#">
-                            <div class="notif-icon notif-success">
-                              <i class="fa fa-comment"></i>
-                            </div>
-                            <div class="notif-content">
-                              <span class="block">
-                                Rahmad commented on Admin
-                              </span>
-                              <span class="time">12 minutes ago</span>
-                            </div>
-                          </a>
-                          <a href="#">
-                            <div class="notif-img">
-                              <img
-                                src="assets/img/profile2.jpg"
-                                alt="Img Profile"
-                              />
-                            </div>
-                            <div class="notif-content">
-                              <span class="block">
-                                Reza send messages to you
-                              </span>
-                              <span class="time">12 minutes ago</span>
-                            </div>
-                          </a>
-                          <a href="#">
-                            <div class="notif-icon notif-danger">
-                              <i class="fa fa-heart"></i>
-                            </div>
-                            <div class="notif-content">
-                              <span class="block"> Farrah liked Admin </span>
-                              <span class="time">17 minutes ago</span>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <a class="see-all" href="javascript:void(0);"
-                        >See all notifications<i class="fa fa-angle-right"></i>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-
-                <!-- For Top Bar Logout Section -->
+                
                 <li class="nav-item topbar-user dropdown hidden-caret">
                   <a
                     class="dropdown-toggle profile-pic"
@@ -369,7 +293,7 @@ if ($totalIncome == null) {
                           </div>
                           <div class="u-text">
                             <h4><?php echo $_SESSION['user_name']; ?></h4>
-                            <p class="text-muted"><?php echo $_SESSION['email']; ?></p>
+                            <p class="text-muted"><?php echo htmlspecialchars($_SESSION['email']); ?></p>
                             <a
                               href="profile.html"
                               class="btn btn-xs btn-secondary btn-sm"
@@ -538,15 +462,8 @@ if ($totalIncome == null) {
                           >
                             Export
                           </button>
-                          <div
-                            class="dropdown-menu"
-                            aria-labelledby="dropdownMenuButton"
-                          >
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#"
-                              >Something else here</a
-                            >
                           </div>
                         </div>
                       </div>
@@ -594,25 +511,31 @@ if ($totalIncome == null) {
                       </div>
                     </div>
                     <div class="card-list py-4">
+                      <?php while($tenant = mysqli_fetch_assoc($tenantListQuery)) { ?>
                       <div class="item-list">
-                        <div class="avatar">
-                          <img
-                            src="assets/img/jm_denis.jpg"
-                            alt="..."
-                            class="avatar-img rounded-circle"
-                          />
+                      <div class="avatar">
+                        <img src="<?php echo $tenant['pictures']; ?>" class="avatar-img rounded-circle">
+                      </div>
+
+                      <div class="info-user ms-3">
+                        <div class="username">
+                          <?php echo htmlspecialchars($tenant['full_name']); ?>
                         </div>
-                        <div class="info-user ms-3">
-                          <div class="username">Jimmy Denis</div>
-                          <div class="status">Graphic Designer</div>
+
+                        <div class="status">
+                          <?php echo htmlspecialchars($tenant['email']); ?>
                         </div>
-                        <button class="btn btn-icon btn-link op-8 me-1">
+                </div>
+                <button class="btn btn-icon btn-link op-8 me-1">
                           <i class="far fa-envelope"></i>
                         </button>
                         <button class="btn btn-icon btn-link btn-danger op-8">
                           <i class="fas fa-ban"></i>
                         </button>
                       </div>
+                
+<?php } ?>
+                        
                     </div>
                   </div>
                 </div>
