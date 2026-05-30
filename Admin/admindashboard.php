@@ -382,7 +382,7 @@ if ($totalIncome == null) {
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">My Profile</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="../index.html">Logout</a>
+                        <a class="dropdown-item" href="../logout.php">Logout</a>
                       </li>
                     </div>
                   </ul>
