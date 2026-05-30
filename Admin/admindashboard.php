@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../databaseconnection.php';
+include 'databaseconnection.php';
 
 // Fetch logged-in user details
 $userId = $_SESSION['user_id'];
@@ -213,7 +213,7 @@ $transactionQuery = mysqli_query(
               </li>    
 
               <li class="nav-item">
-                <a href="tables/propertymanagement.php">
+                <a href="propertymanagement.php">
                    <i class="fas fa-building"></i>
                   <p>Property</p>
                 </a>
