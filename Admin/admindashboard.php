@@ -51,8 +51,6 @@ $newAdminQuery = mysqli_query(
 );
 $newAdmins = mysqli_fetch_assoc($newAdminQuery)['total'];
 
-
-
 // Total Properties
 $propertyQuery = mysqli_query(
     $conn,
@@ -124,8 +122,6 @@ $transactionQuery = mysqli_query(
      LIMIT 10"
 );
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
