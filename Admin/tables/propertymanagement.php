@@ -1,10 +1,6 @@
 <?php
 session_start();
 // Ensure user is logged in
-if (!isset($_SESSION['user_id'])) {
-    die("Not logged in");
-}
-
 include 'databaseconnection.php';
 
 // Fetch logged-in user details

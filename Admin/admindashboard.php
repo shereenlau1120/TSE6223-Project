@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'databaseconnection.php';
+include '..\databaseconnection.php';
 
 // Fetch logged-in user details
 $userId = $_SESSION['user_id'];
