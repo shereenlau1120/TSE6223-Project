@@ -134,16 +134,16 @@ if (isset($_POST['login'])) {
     .password-wrapper {
     position: relative;
     width: 100%;
-}
+    }
 
-.password-wrapper input {
+    .password-wrapper input {
     width: 100%;
     height: 50px;
     padding-right: 45px !important;
     box-sizing: border-box;
-}
+    }
 
-.password-wrapper .toggle-password {
+    .password-wrapper .toggle-password {
     position: absolute;
     right: 15px;
     top: 25px; /* center of 50px input */
@@ -152,11 +152,11 @@ if (isset($_POST['login'])) {
     color: #777;
     font-size: 18px;
     z-index: 999;
-}
+    }
 
-.password-wrapper .toggle-password:hover {
+    .password-wrapper .toggle-password:hover {
     color: #1a75ff;
-}
+    }
 </style>
   </head>
   <body>
@@ -287,11 +287,17 @@ if (isset($_POST['login'])) {
             <div class="field">
               <label>Password <span class="required">*</span></label>
               <small class="field-hint">Must contain at least 8 characters, including uppercase, lowercase letters and numbers.</small>
-              <input type="password" name="password" placeholder="Password" required>
+              <div class="password-wrapper">
+              <input type="password" id="Password1" name="password" placeholder="Password" required>
+              <i class="bi bi-eye toggle-password" onclick="togglePassword('Password1', this)"></i>
+              </div>
             </div>
             <div class="field">
               <label>Confirm Password <span class="required">*</span></label>
-              <input type="password" name="confirm_password" placeholder="Confirm password" required>
+              <div class="password-wrapper">
+              <input type="password" id="Password2" name="confirm_password" placeholder="Confirm password" required>
+              <i class="bi bi-eye toggle-password" onclick="togglePassword('Password2', this)"></i>
+              </div>
             </div>
             <div class="field loginbtn">
               <div class="btn-layer"></div>
