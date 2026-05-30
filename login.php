@@ -44,7 +44,7 @@ if (isset($_POST['signup'])) {
     $hashed = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     $stmt = $conn->prepare("INSERT INTO users (full_name, pictures, email, phone_number, password, role)
-                            VALUES (?, 'assets/img/profile.jpg', ?, ?, ?, 'tenant')");
+                            VALUES (?, 'assets/img/profileimej.jpg', ?, ?, ?, 'tenant')");
 
     $stmt->bind_param("ssss", $fullname, $email, $phone, $hashed);
 
