@@ -24,6 +24,15 @@ $tenantListQuery = mysqli_query(
      LIMIT 5"
 );
 
+//For new tenants notification badge
+$newTenantQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total 
+     FROM users 
+     WHERE role='tenant' AND is_read = 0"
+);
+$newTenants = mysqli_fetch_assoc($newTenantQuery)['total']; 
+
 //Display for admin
 $adminListQuery = mysqli_query(
     $conn,
@@ -32,6 +41,17 @@ $adminListQuery = mysqli_query(
      WHERE role='admin'
 "
 );
+
+//For new admin notification badge
+$newAdminQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total 
+     FROM users 
+     WHERE role='admin' AND is_read = 0"
+);
+$newAdmins = mysqli_fetch_assoc($newAdminQuery)['total'];
+
+
 
 // Total Properties
 $propertyQuery = mysqli_query(
@@ -48,6 +68,14 @@ $maintenanceQuery = mysqli_query(
 );
 $totalMaintenance = mysqli_fetch_assoc($maintenanceQuery)['total'];
 
+//For new maintenance request notification badge
+$newMaintenanceQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total 
+     FROM maintenance_requests 
+     WHERE is_read = 0"
+);
+$newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
 
 // Total Rental Income (Paid only)
 $incomeQuery = mysqli_query(
@@ -198,7 +226,7 @@ $transactionQuery = mysqli_query(
                 <a href="tables/tenantmanagement.php">
                    <i class="fas fa-user-friends"></i>
                   <p>Tenants</p>
-                  <span class="badge badge-success">4</span>
+                  <span class="badge badge-success"><?php echo $newTenants; ?></span>
                 </a>
               </li>
 
@@ -206,7 +234,7 @@ $transactionQuery = mysqli_query(
                 <a href="tables/adminmanagement.php">
                    <i class="fas fa-user-shield"></i>
                   <p>Admin</p>
-                  <span class="badge badge-success">4</span>
+                  <span class="badge badge-success"><?php echo $newAdmins; ?></span>
                 </a>
               </li>
 
@@ -236,7 +264,7 @@ $transactionQuery = mysqli_query(
                 <a href="tables/maintenancerequest.php">
                    <i class="fas fa-wrench"></i>
                   <p>Maintenance</p>
-                  <span class="badge badge-success">4</span>
+                  <span class="badge badge-success"><?php echo $newMaintenance; ?></span>
                 </a>
               </li>
              
