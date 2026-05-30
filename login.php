@@ -130,7 +130,7 @@ if (isset($_POST['login'])) {
       Login/Signup
     </title>
     <style>
-      .password-wrapper {
+    .password-wrapper {
     position: relative;
     width: 100%;
 }
