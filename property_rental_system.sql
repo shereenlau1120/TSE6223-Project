@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 29, 2026 at 07:44 PM
+-- Generation Time: May 30, 2026 at 03:20 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -136,7 +136,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `full_name`, `email`, `phone_number`, `password`, `role`, `status`, `created_at`) VALUES
-(1, 'System Admin', 'admin@gmail.com', '0123456789', 'admin123', 'admin', 'active', '2026-05-29 17:44:11');
+(1, 'System Admin', 'admin@gmail.com', '0123456789', '$2y$10$IOi2xEbrOwKgWQDGYXs6M.ZKIt6BhaLyui7QPDs.Y2yirN7BVNxKS', 'admin', 'active', '2026-05-29 17:44:11'),
+(3, 'Ali', 'ali@gmail.com', '01245852369', '$2y$10$HCj2pKbMBcDa2U6g.utRjeW.YwGu.o3IjYLJY0FSXDwFbs7Tljece', 'tenant', 'active', '2026-05-30 08:17:49');
 
 --
 -- Indexes for dumped tables
@@ -223,7 +224,7 @@ ALTER TABLE `properties`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
