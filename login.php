@@ -117,7 +117,7 @@ if (isset($_POST['login'])) {
       href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="fonts/icomoon/style.css" />
     <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css" />
 
@@ -129,6 +129,34 @@ if (isset($_POST['login'])) {
     <title>
       Login/Signup
     </title>
+    <style>
+      .password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    height: 50px;
+    padding-right: 45px !important;
+    box-sizing: border-box;
+}
+
+.password-wrapper .toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 25px; /* center of 50px input */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777;
+    font-size: 18px;
+    z-index: 999;
+}
+
+.password-wrapper .toggle-password:hover {
+    color: #1a75ff;
+}
+</style>
   </head>
   <body>
     <!-- Dark background overlay -->
@@ -224,9 +252,16 @@ if (isset($_POST['login'])) {
               <label>Email Address <span class="required">*</span></label>
               <input type="text" name="email" placeholder="Enter your email address" required>
             </div>
-            <div class="field">
+            <!--<div class="field">
               <label>Password <span class="required">*</span></label>
               <input type="password" name="password" placeholder="Enter your password" required>
+            </div>-->
+            <div class="field">
+            <label>Password <span class="required">*</span></label>
+              <div class="password-wrapper">
+              <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+              <i class="bi bi-eye toggle-password" onclick="togglePassword('loginPassword', this)"></i>
+              </div>
             </div>
             <div class="pass-link"><a href="#">Forgot password?</a></div>
             <div class="field loginbtn">
@@ -447,7 +482,7 @@ if (isset($_POST['login'])) {
     <!-- For the alert box -->
 
     <script>
-function showAlert(message, type = "info") {
+    function showAlert(message, type = "info") {
     const box = document.getElementById("alertBox");
     const msg = document.getElementById("alertMessage");
     const overlay = document.getElementById("alertOverlay");
@@ -460,9 +495,9 @@ function showAlert(message, type = "info") {
     overlay.style.display = "block";
 
     window.shouldRedirect = true;
-}
+  }
 
-function closeAlert() {
+  function closeAlert() {
     const box = document.getElementById("alertBox");
     const overlay = document.getElementById("alertOverlay");
 
@@ -473,7 +508,7 @@ function closeAlert() {
         window.shouldRedirect = false;
         window.location.href = "login.php";
     }
-}
+  }
 </script>
 
 <?php if ($alert): ?>
@@ -486,5 +521,25 @@ function closeAlert() {
 });
 </script>
 <?php endif; ?>
+
+<script>
+function togglePassword(inputId, icon) {
+
+    const input = document.getElementById(inputId);
+
+    if (input.type === "password") {
+        input.type = "text";
+
+        icon.classList.remove("bi-eye");
+        icon.classList.add("bi-eye-slash");
+
+    } else {
+        input.type = "password";
+
+        icon.classList.remove("bi-eye-slash");
+        icon.classList.add("bi-eye");
+    }
+}
+</script>
   </body>
 </html>
