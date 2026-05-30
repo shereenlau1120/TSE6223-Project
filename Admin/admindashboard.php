@@ -17,11 +17,20 @@ $totalTenants = mysqli_fetch_assoc($tenantQuery)['total'];
 //Display for tenant list
 $tenantListQuery = mysqli_query(
     $conn,
-    "SELECT full_name, email, pictures
+    "SELECT full_name, email, pictures, status
      FROM users
      WHERE role='tenant'
-     ORDER BY user_id DESC
+     ORDER BY user_id ASC
      LIMIT 5"
+);
+
+//Display for admin
+$adminListQuery = mysqli_query(
+    $conn,
+    "SELECT full_name, email, pictures, status
+     FROM users
+     WHERE role='admin'
+"
 );
 
 // Total Properties
@@ -53,6 +62,18 @@ $totalIncome = mysqli_fetch_assoc($incomeQuery)['total'];
 if ($totalIncome == null) {
     $totalIncome = 0;
 }
+
+//For the transaction history section
+$transactionQuery = mysqli_query(
+    $conn,
+    "SELECT payment_id,
+            payment_date,
+            payment_amount,
+            payment_status
+     FROM payments
+     ORDER BY payment_date DESC
+     LIMIT 10"
+);
 ?>
 
 
@@ -143,24 +164,34 @@ if ($totalIncome == null) {
                   <i class="fa fa-ellipsis-h"></i>
                 </span>
                 <h4 class="text-section">Components</h4>
-              </li>                                            
+              </li>    
+
               <li class="nav-item">
                 <a href="tables/propertymanagement.php">
-                   <i class="fas fa-layer-group"></i>
+                   <i class="fas fa-building"></i>
                   <p>Property</p>
                 </a>
               </li>
 
               <li class="nav-item">
                 <a href="tables/tenantmanagement.php">
-                   <i class="fas fa-layer-group"></i>
+                   <i class="fas fa-user-friends"></i>
                   <p>Tenants</p>
                   <span class="badge badge-success">4</span>
                 </a>
               </li>
+
+              <li class="nav-item">
+                <a href="tables/adminmanagement.php">
+                   <i class="fas fa-user-shield"></i>
+                  <p>Admin</p>
+                  <span class="badge badge-success">4</span>
+                </a>
+              </li>
+
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#leases">
-                  <i class="fas fa-pen-square"></i>
+                  <i class="fas fa-chalkboard-teacher"></i>
                   <p>Lease</p>
                   <span class="caret"></span>
                 </a>
@@ -182,7 +213,7 @@ if ($totalIncome == null) {
 
               <li class="nav-item">
                 <a href="tables/maintenancerequest.php">
-                   <i class="fas fa-layer-group"></i>
+                   <i class="fas fa-wrench"></i>
                   <p>Maintenance</p>
                   <span class="badge badge-success">4</span>
                 </a>
@@ -227,12 +258,7 @@ if ($totalIncome == null) {
             <!-- Logo Header -->
             <div class="logo-header" data-background-color="dark">
               <a href="index.html" class="logo">
-                <img
-                  src="assets/img/kaiadmin/logo_light.svg"
-                  alt="navbar brand"
-                  class="navbar-brand"
-                  height="20"
-                />
+                <img src="assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20"/>
               </a>
               <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">
@@ -262,12 +288,7 @@ if ($totalIncome == null) {
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
                 
                 <li class="nav-item topbar-user dropdown hidden-caret">
-                  <a
-                    class="dropdown-toggle profile-pic"
-                    data-bs-toggle="dropdown"
-                    href="#"
-                    aria-expanded="false"
-                  >
+                  <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
                       <img
                         src="assets/img/profileimej.jpg"
@@ -285,20 +306,14 @@ if ($totalIncome == null) {
                       <li>
                         <div class="user-box">
                           <div class="avatar-lg">
-                            <img
-                              src="assets/img/profile.jpg"
-                              alt="image profile"
-                              class="avatar-img rounded"
-                            />
+                            <?php while($admin = mysqli_fetch_assoc($adminListQuery)) { ?>
+                            <img src="<?php echo $admin['pictures']; ?>" alt="image profile" class="avatar-img rounded"/>
+                            <?php } ?>
                           </div>
                           <div class="u-text">
                             <h4><?php echo $_SESSION['user_name']; ?></h4>
                             <p class="text-muted"><?php echo htmlspecialchars($_SESSION['email']); ?></p>
-                            <a
-                              href="profile.html"
-                              class="btn btn-xs btn-secondary btn-sm"
-                              >View Profile</a
-                            >
+                            <a href="profile.php" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                           </div>
                         </div>
                       </li>
@@ -354,7 +369,7 @@ if ($totalIncome == null) {
                         <div
                           class="icon-big text-center icon-info bubble-shadow-small"
                         >
-                          <i class="icon-layers"></i>
+                          <i class="fas fa-building"></i>
                         </div>
                       </div>
                       <div class="col col-stats ms-3 ms-sm-0">
@@ -413,16 +428,13 @@ if ($totalIncome == null) {
 
             <!-- Report Section -->
             <div class="row">
-              <div class="col-md-8">
+              <div class="col-md-12">
                 <div class="card card-round">
                   <div class="card-header">
                     <div class="card-head-row">
                       <div class="card-title">Income Report</div>
                       <div class="card-tools">
-                        <a
-                          href="#"
-                          class="btn btn-label-success btn-round btn-sm me-2"
-                        >
+                        <a href="#" class="btn btn-label-success btn-round btn-sm me-2">
                           <span class="btn-label">
                             <i class="fas fa-file-export"></i>
                           </span>
@@ -437,11 +449,11 @@ if ($totalIncome == null) {
                       </div>
                     </div>
                   </div>
+                    <div id="myChartLegend"></div>
                   <div class="card-body">
-                    <div class="chart-container" style="min-height: 375px, width: 100%">
+                    <div class="chart-container" style="min-height: 375px, width: 100%;">
                       <canvas id="statisticsChart"></canvas>
                     </div>
-                    <div id="myChartLegend"></div>
                   </div>
                 </div>
               </div>
@@ -470,7 +482,7 @@ if ($totalIncome == null) {
                             class="dropdown-menu"
                             aria-labelledby="dropdownMenuButton"
                           >
-                            <a class="dropdown-item" href="#">View Details</a>
+                            <a class="dropdown-item" href="tables/tenantmanagement.php">View Details</a>
                           </div>
                         </div>
                       </div>
@@ -490,16 +502,14 @@ if ($totalIncome == null) {
                         <div class="status">
                           <?php echo htmlspecialchars($tenant['email']); ?>
                         </div>
-                </div>
-                <button class="btn btn-icon btn-link op-8 me-1">
-                          <i class="far fa-envelope"></i>
-                        </button>
-                        <button class="btn btn-icon btn-link btn-danger op-8">
-                          <i class="fas fa-ban"></i>
-                        </button>
                       </div>
-                
-<?php } ?>
+                        <?php if($tenant['status'] == 'active') { ?>
+                          <span class="badge badge-success">Active</span>
+                        <?php } else { ?>
+                          <span class="badge badge-danger">Inactive</span>
+                        <?php } ?>
+                      </div>
+                      <?php } ?>
                         
                     </div>
                   </div>
@@ -514,21 +524,11 @@ if ($totalIncome == null) {
                       <div class="card-title">Transaction History</div>
                       <div class="card-tools">
                         <div class="dropdown">
-                          <button
-                            class="btn btn-icon btn-clean me-0"
-                            type="button"
-                            id="dropdownMenuButton"
-                            data-bs-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                          >
+                          <button class="btn btn-icon btn-clean me-0" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-ellipsis-h"></i>
                           </button>
-                          <div
-                            class="dropdown-menu"
-                            aria-labelledby="dropdownMenuButton"
-                          >
-                            <a class="dropdown-item" href="#">View Details</a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="tables/leasepayment.php">View Details</a>
                           </div>
                         </div>
                       </div>
@@ -547,7 +547,7 @@ if ($totalIncome == null) {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
+                          <!--<tr>
                             <th scope="row">
                               Payment from #10231
                             </th>
@@ -556,7 +556,35 @@ if ($totalIncome == null) {
                             <td class="text-end">
                               <span class="badge badge-success">Completed</span>
                             </td>
-                          </tr>
+                          </tr>-->
+                          <?php while($payment = mysqli_fetch_assoc($transactionQuery)) { ?>
+                          <tr>
+                          <th scope="row">
+                            #<?php echo $payment['payment_id']; ?>
+                          </th>
+
+                          <td class="text-end">
+                            <?php echo date('d M Y', strtotime($payment['payment_date'])); ?>
+                          </td>
+
+                          <td class="text-end">
+                            RM <?php echo number_format($payment['payment_amount'], 2); ?>
+                          </td>
+
+                            <td class="text-end">
+
+                            <?php if($payment['payment_status'] == 'paid') { ?>
+                              <span class="badge bg-success">Paid</span>
+
+                            <?php } elseif($payment['payment_status'] == 'pending') { ?>
+                              <span class="badge bg-warning text-dark">Pending</span>
+
+                            <?php } else { ?>
+                              <span class="badge bg-danger">Overdue</span>
+                            <?php } ?>
+                          </td>
+                        </tr>
+                      <?php } ?>
                         </tbody>
                       </table>
                     </div>
