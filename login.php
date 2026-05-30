@@ -78,7 +78,7 @@ if (isset($_POST['login'])) {
         $_SESSION['role'] = $user['role'];
 
         if ($user['role'] == 'admin') {
-            header("Location: Admin/admindashboard.html");
+            header("Location: Admin/admindashboard.php");
             exit();
         } else {
             header("Location: index.html");

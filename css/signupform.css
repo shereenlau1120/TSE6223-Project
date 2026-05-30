@@ -231,36 +231,6 @@ form .loginbtn input[type="submit"]{
     width: 100%;
 }
 
-.password-wrapper {
-    position: relative;
-    width: 100%;
-    border: 3px solid red !important;
-    position: relative !important;
-}
-
-.password-wrapper input {
-    width: 100%;
-    height: 50px;
-    padding-right: 45px !important;
-    box-sizing: border-box;
-}
-
-.password-wrapper .toggle-password {
-    position: absolute;
-    right: 15px;
-    top: 25px; /* center of 50px input */
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #777;
-    font-size: 18px;
-    z-index: 999;
-}
-
-.password-wrapper .toggle-password:hover {
-    color: #1a75ff;
-}
-
-
 /*.password-wrapper {
     position: relative;
     width: 100%;
