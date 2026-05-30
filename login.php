@@ -81,7 +81,7 @@ if (isset($_POST['login'])) {
             header("Location: Admin/admindashboard.php");
             exit();
         } else {
-            header("Location: index.html");
+            header("Location: index.php");
             exit();
         }
 
