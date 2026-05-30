@@ -1,3 +1,60 @@
+<?php
+session_start();
+include '../databaseconnection.php';
+
+// Fetch logged-in user details
+$userId = $_SESSION['user_id'];
+$email = $_SESSION['email'];
+$userName = $_SESSION['user_name'];
+
+$userQuery = mysqli_query(
+    $conn,
+    "SELECT email FROM users WHERE user_id='$userId'"
+);
+
+$userData = mysqli_fetch_assoc($userQuery);
+
+// Total Tenants
+$tenantQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total FROM users WHERE role='tenant'"
+);
+$totalTenants = mysqli_fetch_assoc($tenantQuery)['total'];
+
+
+// Total Properties
+$propertyQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total FROM properties"
+);
+$totalProperties = mysqli_fetch_assoc($propertyQuery)['total'];
+
+
+// Total Maintenance Requests
+$maintenanceQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total FROM maintenance_requests"
+);
+$totalMaintenance = mysqli_fetch_assoc($maintenanceQuery)['total'];
+
+
+// Total Rental Income (Paid only)
+$incomeQuery = mysqli_query(
+    $conn,
+    "SELECT SUM(payment_amount) AS total
+     FROM payments
+     WHERE payment_status='paid'"
+);
+
+$totalIncome = mysqli_fetch_assoc($incomeQuery)['total'];
+
+if ($totalIncome == null) {
+    $totalIncome = 0;
+}
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -296,7 +353,7 @@
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
-                      <span class="fw-bold">Hizrian</span>
+                      <span class="fw-bold"><?php echo $_SESSION['user_name']; ?></span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -311,8 +368,8 @@
                             />
                           </div>
                           <div class="u-text">
-                            <h4>Hizrian</h4>
-                            <p class="text-muted">hello@example.com</p>
+                            <h4><?php echo $_SESSION['user_name']; ?></h4>
+                            <p class="text-muted"><?php echo $_SESSION['email']; ?></p>
                             <a
                               href="profile.html"
                               class="btn btn-xs btn-secondary btn-sm"
@@ -360,7 +417,7 @@
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                           <p class="card-category">Tenants</p>
-                          <h4 class="card-title">xx</h4>
+                          <h4 class="card-title"><?php echo $totalTenants; ?></h4>
                         </div>
                       </div>
                     </div>
@@ -381,7 +438,7 @@
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                           <p class="card-category">Properties</p>
-                          <h4 class="card-title">xx</h4>
+                          <h4 class="card-title"><?php echo $totalProperties; ?></h4>
                         </div>
                       </div>
                     </div>
@@ -402,7 +459,7 @@
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                           <p class="card-category">Lease Payments</p>
-                          <h4 class="card-title">$ 1,345</h4>
+                          <h4 class="card-title">RM <?php echo number_format($totalIncome, 2); ?></h4>
                         </div>
                       </div>
                     </div>
@@ -423,7 +480,7 @@
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                           <p class="card-category">Maintenance</p>
-                          <h4 class="card-title">576</h4>
+                          <h4 class="card-title"><?php echo $totalMaintenance; ?></h4>
                         </div>
                       </div>
                     </div>
