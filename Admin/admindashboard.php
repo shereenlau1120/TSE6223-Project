@@ -63,6 +63,27 @@ if ($totalIncome == null) {
     $totalIncome = 0;
 }
 
+//Monthly Income for Chart
+$monthlyIncomeQuery = mysqli_query(
+    $conn,
+    "SELECT
+        DATE_FORMAT(payment_date, '%Y-%m') AS month,
+        SUM(payment_amount) AS total_income
+     FROM payments
+     WHERE payment_status = 'paid'
+     GROUP BY DATE_FORMAT(payment_date, '%Y-%m')
+     ORDER BY month ASC"
+);
+
+$months = [];
+$incomeData = [];
+
+while($row = mysqli_fetch_assoc($monthlyIncomeQuery))
+{
+    $months[] = $row['month'];
+    $incomeData[] = $row['total_income'];
+}
+
 //For the transaction history section
 $transactionQuery = mysqli_query(
     $conn,
@@ -429,26 +450,26 @@ $transactionQuery = mysqli_query(
             <!-- Report Section -->
             <div class="row">
               <div class="col-md-12">
-                <div class="card card-round">
+                <div class="card card-round" id="incomeReport">
                   <div class="card-header">
                     <div class="card-head-row">
                       <div class="card-title">Income Report</div>
                       <div class="card-tools">
-                        <a href="#" class="btn btn-label-success btn-round btn-sm me-2">
+                        <a href="export_income.php" class="btn btn-label-success btn-round btn-sm me-2">
                           <span class="btn-label">
                             <i class="fas fa-file-export"></i>
                           </span>
                           Export
                         </a>
-                        <a href="#" class="btn btn-label-info btn-round btn-sm">
-                          <span class="btn-label">
-                            <i class="fa fa-print"></i>
-                          </span>
-                          Print
-                        </a>
-                      </div>
+                        <button onclick="printIncomeReport()" class="btn btn-label-info btn-round btn-sm">
+                        <span class="btn-label">
+                        <i class="fa fa-print"></i>
+                        </span>
+                        Print
+                      </button>
                     </div>
                   </div>
+                </div>
                     <div id="myChartLegend"></div>
                   <div class="card-body">
                     <div class="chart-container" style="min-height: 375px, width: 100%;">
@@ -458,6 +479,42 @@ $transactionQuery = mysqli_query(
                 </div>
               </div>
             </div>
+
+            <!--Summary of the income report-->
+            <div class="table-responsive mt-4">
+<table class="table table-bordered">
+
+    <thead>
+        <tr>
+            <th>Month</th>
+            <th>Total Income (RM)</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    <?php
+
+    mysqli_data_seek($monthlyIncomeQuery, 0);
+
+    while($row = mysqli_fetch_assoc($monthlyIncomeQuery))
+    {
+    ?>
+
+        <tr>
+            <td><?php echo $row['month']; ?></td>
+
+            <td>
+                RM <?php echo number_format($row['total_income'],2); ?>
+            </td>
+        </tr>
+
+    <?php } ?>
+
+    </tbody>
+
+</table>
+</div>
 
             <!-- customer section-->
             <div class="row">
@@ -631,7 +688,7 @@ $transactionQuery = mysqli_query(
     <script src="assets/js/kaiadmin.min.js"></script>
 
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-    <script>
+    <!--<script>
       $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
         type: "line",
         height: "70",
@@ -658,6 +715,95 @@ $transactionQuery = mysqli_query(
         lineColor: "#ffa534",
         fillColor: "rgba(255, 165, 52, .14)",
       });
-    </script>
+    </script>-->
+<script>
+
+var ctx = document.getElementById("statisticsChart");
+new Chart(ctx, {
+    type: "bar",
+
+    data: {
+        labels: <?php echo json_encode($months); ?>,
+
+        datasets: [{
+            label: "Monthly Income (RM)",
+
+            data: <?php echo json_encode($incomeData); ?>,
+
+            backgroundColor: [
+                "#1572E8",
+                "#48ABF7",
+                "#31CE36",
+                "#FFAD46",
+                "#F25961"
+            ],
+
+            borderWidth: 1
+        }]
+    },
+
+    options: {
+        responsive: true,
+
+        plugins: {
+            legend: {
+                display: true
+            }
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+<!-- For printing the income report section -->
+ <script>
+function printIncomeReport() {
+
+    var reportContent =
+        document.getElementById("incomeReport").innerHTML;
+
+    var printWindow = window.open('', '', 'width=1000,height=700');
+
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Income Report</title>
+
+            <link rel="stylesheet"
+                  href="assets/css/bootstrap.min.css">
+
+            <style>
+                body{
+                    padding:20px;
+                    font-family:Arial,sans-serif;
+                }
+
+                .btn,
+                .card-tools{
+                    display:none;
+                }
+            </style>
+        </head>
+
+        <body>
+            ${reportContent}
+        </body>
+
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    setTimeout(function() {
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+}
+</script>
   </body>
 </html>
