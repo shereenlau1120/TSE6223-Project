@@ -131,7 +131,7 @@ if ($totalIncome == null) {
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
               <li class="nav-item active">
-                <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+                <a data-bs-toggle="collapse" href="admindashboard.php" class="collapsed" aria-expanded="false">
                   <i class="fas fa-home"></i>
                   <p>Home</p>
                 </a>
@@ -145,14 +145,14 @@ if ($totalIncome == null) {
                 <h4 class="text-section">Components</h4>
               </li>                                            
               <li class="nav-item">
-                <a href="#">
+                <a href="tables/propertymanagement.php">
                    <i class="fas fa-layer-group"></i>
                   <p>Property</p>
                 </a>
               </li>
 
               <li class="nav-item">
-                <a href="#">
+                <a href="tables/tenantmanagement.php">
                    <i class="fas fa-layer-group"></i>
                   <p>Tenants</p>
                   <span class="badge badge-success">4</span>
@@ -167,12 +167,12 @@ if ($totalIncome == null) {
                 <div class="collapse" id="leases">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="#">
+                      <a href="tables/leasemanagement.php">
                         <span class="sub-item">Lease Management</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="tables/leasepayment.php">
                         <span class="sub-item">Lease Payments</span>
                       </a>
                     </li>
@@ -181,7 +181,7 @@ if ($totalIncome == null) {
               </li>
 
               <li class="nav-item">
-                <a href="#">
+                <a href="tables/maintenancerequest.php">
                    <i class="fas fa-layer-group"></i>
                   <p>Maintenance</p>
                   <span class="badge badge-success">4</span>
