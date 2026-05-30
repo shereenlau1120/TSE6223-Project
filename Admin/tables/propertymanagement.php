@@ -1,16 +1,52 @@
 <?php
 session_start();
-// Ensure user is logged in
-include 'databaseconnection.php';
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
+include '..\databaseconnection.php';
 
 // Fetch logged-in user details
 $userId = $_SESSION['user_id'];
 $email = $_SESSION['email'];
 $userName = $_SESSION['user_name'];
 
-$userId = (int)$_SESSION['user_id'];
+// Total Tenants
+$tenantQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total FROM users WHERE role='tenant'"
+);
+$totalTenants = mysqli_fetch_assoc($tenantQuery)['total'];
 
-// Fetch current admin info
+//Display for tenant list
+$tenantListQuery = mysqli_query(
+    $conn,
+    "SELECT full_name, email, pictures, status
+     FROM users
+     WHERE role='tenant'
+     ORDER BY user_id ASC
+     LIMIT 5"
+);
+
+//For new tenants notification badge
+$newTenantQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total 
+     FROM users 
+     WHERE role='tenant' AND is_read = 0"
+);
+$newTenants = mysqli_fetch_assoc($newTenantQuery)['total']; 
+
+//Display for admin
+$adminListQuery = mysqli_query(
+    $conn,
+    "SELECT full_name, email, pictures, status
+     FROM users
+     WHERE role='admin'
+"
+);
+
 $adminQuery = mysqli_query(
     $conn,
     "SELECT full_name, email, pictures, status
@@ -19,45 +55,36 @@ $adminQuery = mysqli_query(
 );
 $admin = mysqli_fetch_assoc($adminQuery);
 
-// Count total tenants
-$tenantQuery = mysqli_query(
-    $conn,
-    "SELECT COUNT(*) AS total FROM users WHERE role='tenant'"
-);
-$totalTenants = mysqli_fetch_assoc($tenantQuery)['total'];
-
-// Count new tenants
-$newTenantQuery = mysqli_query(
-    $conn,
-    "SELECT COUNT(*) AS total FROM users WHERE role='tenant' AND is_read = 0"
-);
-$newTenants = mysqli_fetch_assoc($newTenantQuery)['total'];
-
-// Count total admins
-$adminTotalQuery = mysqli_query(
-    $conn,
-    "SELECT COUNT(*) AS total FROM users WHERE role='admin'"
-);
-$totalAdmins = mysqli_fetch_assoc($adminTotalQuery)['total'];
-
-// Count new admins
+//For new admin notification badge
 $newAdminQuery = mysqli_query(
     $conn,
-    "SELECT COUNT(*) AS total FROM users WHERE role='admin' AND is_read = 0"
+    "SELECT COUNT(*) AS total 
+     FROM users 
+     WHERE role='admin' AND is_read = 0"
 );
 $newAdmins = mysqli_fetch_assoc($newAdminQuery)['total'];
 
-// Count total maintenance requests
+// Total Properties
+$propertyQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total FROM properties"
+);
+$totalProperties = mysqli_fetch_assoc($propertyQuery)['total'];
+
+
+// Total Maintenance Requests
 $maintenanceQuery = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total FROM maintenance_requests"
 );
 $totalMaintenance = mysqli_fetch_assoc($maintenanceQuery)['total'];
 
-// Count new maintenance requests
+//For new maintenance request notification badge
 $newMaintenanceQuery = mysqli_query(
     $conn,
-    "SELECT COUNT(*) AS total FROM maintenance_requests WHERE is_read = 0"
+    "SELECT COUNT(*) AS total 
+     FROM maintenance_requests 
+     WHERE is_read = 0"
 );
 $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
 ?>
@@ -274,14 +301,14 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
                       <img
-                        src="../assets/img/profileimej.jpg"
+                        src="../<?php echo htmlspecialchars($admin['pictures']); ?>"
                         alt="..."
                         class="avatar-img rounded-circle"
                       />
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
-                      <span class="fw-bold"><?php echo $_admin['full_name']; ?></span>
+                      <span class="fw-bold"><?php echo $admin['full_name']; ?></span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -289,14 +316,13 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                       <li>
                         <div class="user-box">
                           <div class="avatar-lg">
-                            <?php while($admin = mysqli_fetch_assoc($adminListQuery)) { ?>
-                            <img src="<?php echo $admin['pictures']; ?>" alt="image profile" class="avatar-img rounded"/>
-                            <?php } ?>
+                            <img src="../<?php echo htmlspecialchars($admin['pictures']); ?>" alt="profile image" class="avatar-img rounded"/>
                           </div>
+
                           <div class="u-text">
-                            <h4><?php echo $_admin['full_name']; ?></h4>
-                            <p class="text-muted"><?php echo htmlspecialchars($admin['email']); ?></p>
-                            <a href="profile.php" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                          <h4><?php echo htmlspecialchars($admin['full_name']); ?></h4>
+                          <p class="text-muted"><?php echo htmlspecialchars($admin['email']); ?></p>
+                          <a href="profile.php" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                           </div>
                         </div>
                       </li>
@@ -489,8 +515,6 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
     <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
     <!-- Kaiadmin JS -->
     <script src="../assets/js/kaiadmin.min.js"></script>
-    <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-    <script src="../assets/js/setting-demo2.js"></script>
     <script>
       $(document).ready(function () {
         $("#basic-datatables").DataTable({});

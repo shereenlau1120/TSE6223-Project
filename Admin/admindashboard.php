@@ -1,5 +1,10 @@
 <?php
 session_start();
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
 include '..\databaseconnection.php';
 
 // Fetch logged-in user details
@@ -41,6 +46,14 @@ $adminListQuery = mysqli_query(
      WHERE role='admin'
 "
 );
+
+$adminQuery = mysqli_query(
+    $conn,
+    "SELECT full_name, email, pictures, status
+     FROM users
+     WHERE user_id = $userId"
+);
+$admin = mysqli_fetch_assoc($adminQuery);
 
 //For new admin notification badge
 $newAdminQuery = mysqli_query(
@@ -213,7 +226,7 @@ $transactionQuery = mysqli_query(
               </li>    
 
               <li class="nav-item">
-                <a href="propertymanagement.php">
+                <a href="tables\propertymanagement.php">
                    <i class="fas fa-building"></i>
                   <p>Property</p>
                 </a>
@@ -337,14 +350,14 @@ $transactionQuery = mysqli_query(
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
                       <img
-                        src="assets/img/profileimej.jpg"
+                        src="<?php echo htmlspecialchars($admin['pictures']); ?>"
                         alt="..."
                         class="avatar-img rounded-circle"
                       />
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
-                      <span class="fw-bold"><?php echo $_SESSION['user_name']; ?></span>
+                      <span class="fw-bold"><?php echo $admin['full_name']; ?></span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -352,13 +365,11 @@ $transactionQuery = mysqli_query(
                       <li>
                         <div class="user-box">
                           <div class="avatar-lg">
-                            <?php while($admin = mysqli_fetch_assoc($adminListQuery)) { ?>
-                            <img src="<?php echo $admin['pictures']; ?>" alt="image profile" class="avatar-img rounded"/>
-                            <?php } ?>
+                            <img src="<?php echo htmlspecialchars($admin['pictures']); ?>" alt="profile image" class="avatar-img rounded"/>
                           </div>
                           <div class="u-text">
-                            <h4><?php echo $_SESSION['user_name']; ?></h4>
-                            <p class="text-muted"><?php echo htmlspecialchars($_SESSION['email']); ?></p>
+                            <h4><?php echo htmlspecialchars($admin['full_name']); ?></h4>
+                          <p class="text-muted"><?php echo htmlspecialchars($admin['email']); ?></p>
                             <a href="profile.php" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                           </div>
                         </div>
