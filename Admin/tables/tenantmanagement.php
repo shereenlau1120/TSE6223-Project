@@ -78,6 +78,13 @@ $propertyQuery = mysqli_query(
 );
 $totalProperties = mysqli_fetch_assoc($propertyQuery)['total'];
 
+// New Payments
+$paymentQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total FROM payments WHERE payment_date >= CURDATE() - INTERVAL 7 DAY"
+);
+$newPayments = mysqli_fetch_assoc($paymentQuery)['total'];
+
 
 // Total Maintenance Requests
 $maintenanceQuery = mysqli_query(
@@ -223,25 +230,11 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
               </li>
 
               <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#leases">
+                <a href="lease.php">
                   <i class="fas fa-chalkboard-teacher"></i>
-                  <p>Lease</p>
-                  <span class="caret"></span>
+                  <p>Lease and Payments</p>
+                  <span class="badge badge-success"><?php echo $newPayments; ?></span>
                 </a>
-                <div class="collapse" id="leases">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="leasemanagement.php">
-                        <span class="sub-item">Lease Management</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="leasepayment.php">
-                        <span class="sub-item">Lease Payments</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
               </li>
 
               <li class="nav-item">
