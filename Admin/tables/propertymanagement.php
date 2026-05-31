@@ -129,6 +129,20 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
     <link rel="stylesheet" href="../assets/css/plugins.min.css" />
     <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
 
+    <style>
+    .is-invalid {
+      border: 2px solid #dc3545 !important;
+    }
+
+    .error-text {
+      color: #dc3545;
+      font-size: 12px;
+      display: block;
+      margin-top: 4px;
+      min-height: 18px;
+    }
+    </style>
+
   </head>
   <body>
     <div class="wrapper">
@@ -347,6 +361,14 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
               </ul>
             </div>
 
+
+            <?php if (isset($_GET['error']) && $_GET['error'] == 'duplicate_name') { ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error!</strong> Property name already exists.
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <?php } ?>
+            
             <!-- Table for Property Management -->
             <div class="row">
               <div class="col-md-12">
@@ -380,7 +402,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                               <span aria-hidden="true">&times;</span>
                             </button>
                           </div>
-                          <form action="addproperties.php" method="POST" enctype="multipart/form-data">
+                          <form id="addPropertyForm" action="addproperties.php" method="POST" enctype="multipart/form-data">
                           <div class="modal-body">
                             <p class="small"> Create a new property using this form, make sure you fill them all
                             </p>
@@ -389,57 +411,65 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                                 <div class="col-sm-12">
                                   <div class="form-group form-group-default">
                                     <label style="font-weight: bold; color: #333; size: 16px;">Property Name<span class="text-danger"> *</span></label>
-                                    <input name="name" type="text" class="form-control" placeholder="fill name" required/>
+                                    <input id="propertyName"name="name" type="text" class="form-control" placeholder="fill name" required/>
+                                    <small id="nameError" class="error-text"></small>
                                   </div>
                                 </div>
                                 <div class="col-md-6 pe-0">
                                   <div class="form-group form-group-default">
                                     <label style="font-weight: bold; color: #333; size: 16px;">Property Type<span class="text-danger"> *</span></label>
-                                    <select name="type" class="form-control" required>
+                                    <select id="propertyType"name="type" class="form-control" required>
                                     <option value="">Select Property Type</option>
                                     <option value="residential">Residential</option>
                                     <option value="commercial">Commercial</option>
                                     </select>
+                                    <small id="typeError" class="error-text"></small>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group form-group-default">
                                     <label style="font-weight: bold; color: #333; size: 16px;">Address<span class="text-danger"> *</span></label>
-                                    <input name="address" type="text" class="form-control" placeholder="fill address" required/>
+                                    <input id="propertyAddress"name="address" type="text" class="form-control" placeholder="fill address" required/>
+                                    <small id="addressError" class="error-text"></small>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group form-group-default">
                                     <label style="font-weight: bold; color: #333; size: 16px;">Price<span class="text-danger"> *</span></label>
-                                    <input name="price" type="number" class="form-control" placeholder="fill price" required/>
+                                    <input id="propertyPrice"name="price" type="number" class="form-control" min="0.01" step="0.01"placeholder="fill price" required/>
+                                    <small id="priceError" class="error-text"></small>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group form-group-default">
                                     <label style="font-weight: bold; color: #333; size: 16px;">Number of Rooms<span class="text-danger"> *</span></label>
-                                    <input name="rooms" type="number" class="form-control" placeholder="fill number of rooms" required/>
+                                    <input id="propertyRooms"name="rooms" type="number" class="form-control" min="1" step="1" placeholder="fill number of rooms" required/>
+                                    <small id="roomsError" class="error-text"></small>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group form-group-default">
                                     <label style="font-weight: bold; color: #333; size: 16px;">Property Description<span class="text-danger"> *</span></label>
-                                    <input name="description" type="text" class="form-control" placeholder="fill description" required>
+                                    <input id="propertyDescription"name="description" type="text" class="form-control" placeholder="fill description" required>
+                                    <small id="descriptionError" class="error-text"></small>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group form-group-default">
                                     <label style="font-weight: bold; color: #333; size: 16px;">Occupancy<span class="text-danger"> *</span></label>
-                                    <select name="occupancy" class="form-control" required>
+                                    <select id="propertyOccupancy" name="occupancy" class="form-control" required>
                                     <option value="">Select Occupancy Status</option>
                                     <option value="available">Available</option>
                                     <option value="rented">Rented</option>
                                     </select>
+                                    <small id="occupancyError" class="error-text"></small>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group form-group-default">
                                     <label style="font-weight: bold; color: #333; size: 16px;">Image<span class="text-danger"> *</span></label>
-                                    <input name="Image" type="file" class="form-control" placeholder="fill image" required>
+                                    <input id="propertyImage" name="Image" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" placeholder="fill image" required>
+                                    <small id="imageError" class="error-text"></small>
                                   </div>
                                 </div>
                               </div>
@@ -578,10 +608,141 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
         $("#add-row").DataTable({
           pageLength: 5,
         });
-
         var action =
           '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
       });
     </script>
+
+    <script>
+  document.getElementById("addPropertyForm").addEventListener("submit", function(e){
+
+    let valid = true;
+
+    document.querySelectorAll(".error-text").forEach(error => {
+    error.textContent = "";
+    });
+
+    document.querySelectorAll(".form-control").forEach(field => {
+    field.classList.remove("is-invalid");
+    });
+
+    const name = document.getElementById("propertyName");
+    const address = document.getElementById("propertyAddress");
+    const price = document.getElementById("propertyPrice");
+    const rooms = document.getElementById("propertyRooms");
+    const description = document.getElementById("propertyDescription");
+    const image = document.getElementById("propertyImage");
+
+    // Reset borders
+    document.querySelectorAll(".form-control").forEach(field => {
+        field.addEventListener("input", function(){
+        this.classList.remove("is-invalid");
+    });
+
+    field.addEventListener("change", function(){
+        this.classList.remove("is-invalid");
+    });
+});
+
+    // Property Name
+    if(name.value.trim() === ""){
+    name.classList.add("is-invalid");
+    document.getElementById("nameError").textContent =
+        "Property name is required.";
+    valid = false;
+    }
+    else if(!/^[A-Za-z\s]+$/.test(name.value.trim())){
+    name.classList.add("is-invalid");
+    document.getElementById("nameError").textContent = "Only letters and spaces are allowed.";
+    valid = false;
+    }
+
+    // Address
+    if(address.value.trim().length < 5){
+        address.classList.add("is-invalid");
+        document.getElementById("addressError").textContent =
+            "Address must be at least 5 characters long.";
+        valid = false;
+    }
+
+    // Price (float > 0)
+    if(price.value.trim() === ""){
+    price.classList.add("is-invalid");
+    document.getElementById("priceError").textContent =
+        "Rental price is required.";
+    valid = false;
+    }
+    else if(isNaN(price.value) || parseFloat(price.value) <= 0){
+    price.classList.add("is-invalid");
+    document.getElementById("priceError").textContent =
+        "Price must be greater than 0.";
+    valid = false;
+    }
+
+    // Number of Rooms (integer > 0)
+    if(rooms.value.trim() === ""){
+    rooms.classList.add("is-invalid");
+    document.getElementById("roomsError").textContent =
+        "Number of rooms is required.";
+    valid = false;
+    }
+    else if(!Number.isInteger(Number(rooms.value)) || Number(rooms.value) <= 0){
+    rooms.classList.add("is-invalid");
+    document.getElementById("roomsError").textContent =
+        "Rooms must be a positive whole number.";
+    valid = false;
+    }
+
+    // Description
+    if(description.value.trim().length < 10){
+        description.classList.add("is-invalid");
+        document.getElementById("descriptionError").textContent =
+            "Description must be at least 10 characters long.";
+        valid = false;
+    }
+
+    // Image Required + Format Validation
+    if(image.files.length === 0){
+    image.classList.add("is-invalid");
+    document.getElementById("imageError").textContent =
+        "Please upload a property image.";
+    valid = false;
+    }
+    else {
+    const allowedExtensions = ["jpg","jpeg","png","gif","webp"];
+
+    const fileName = image.files[0].name.toLowerCase();
+    const extension = fileName.split(".").pop();
+
+    if(!allowedExtensions.includes(extension)){
+        image.classList.add("is-invalid");
+        document.getElementById("imageError").textContent =
+            "Only JPG, JPEG, PNG, GIF and WEBP files are allowed.";
+        valid = false;
+    }
+   }
+
+    if(!valid){
+        e.preventDefault();
+    }
+  });
+
+  // Remove error when corrected
+document.querySelectorAll(".form-control").forEach(field => {
+    field.addEventListener("input", () => {
+        field.classList.remove("is-invalid");
+        const errorId = field.id.replace("property","").toLowerCase() + "Error";
+        const errorElement = document.getElementById(errorId);
+        if(errorElement) errorElement.textContent = "";
+    });
+
+    field.addEventListener("change", () => {
+        field.classList.remove("is-invalid");
+        const errorId = field.id.replace("property","").toLowerCase() + "Error";
+        const errorElement = document.getElementById(errorId);
+        if(errorElement) errorElement.textContent = "";
+    });
+});
+  </script>
   </body>
 </html>

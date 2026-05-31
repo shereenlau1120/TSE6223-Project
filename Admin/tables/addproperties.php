@@ -33,6 +33,19 @@ if (isset($_POST['add_property'])) {
         }
     }
 
+    // Check if property name already exists
+    $checkStmt = $conn->prepare(
+    "SELECT property_id FROM properties WHERE property_name = ?"
+    );
+    $checkStmt->bind_param("s", $name);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+
+    if ($checkResult->num_rows > 0) {
+    header("Location: propertymanagement.php?error=duplicate_name");
+    exit();
+}
+
     // insert into database
     $stmt = $conn->prepare("
         INSERT INTO properties 
