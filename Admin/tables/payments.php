@@ -221,7 +221,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                 </a>
               </li>
 
-              <li class="nav-item">
+              <li class="nav-item active">
                 <a href="payments.php">
                   <i class="fas fa-wallet"></i>
                   <p>Payments</p>
@@ -229,7 +229,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                 </a>
               </li>
 
-              <li class="nav-item active">
+              <li class="nav-item">
                 <a href="maintenancerequest.php">
                    <i class="fas fa-wrench"></i>
                   <p>Maintenance</p>
