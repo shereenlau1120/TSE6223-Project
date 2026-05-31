@@ -353,14 +353,10 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                 <div class="card">
                   <div class="card-header">
                     <div class="d-flex align-items-center">
-                      <h4 class="card-title">Add Row</h4>
-                      <button
-                        class="btn btn-primary btn-round ms-auto"
-                        data-bs-toggle="modal"
-                        data-bs-target="#addRowModal"
-                      >
+                      <h4 class="card-title">Add New Property</h4>
+                      <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" data-bs-target="#addRowModal">
                         <i class="fa fa-plus"></i>
-                        Add Row
+                        Add New Property
                       </button>
                     </div>
                   </div>
@@ -378,75 +374,80 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                           <div class="modal-header border-0">
                             <h5 class="modal-title">
                               <span class="fw-mediumbold"> New</span>
-                              <span class="fw-light"> Row </span>
+                              <span class="fw-light"> Property </span>
                             </h5>
-                            <button
-                              type="button"
-                              class="close"
-                              data-dismiss="modal"
-                              aria-label="Close"
-                            >
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true">&times;</span>
                             </button>
                           </div>
+                          <form action="addproperties.php" method="POST" enctype="multipart/form-data">
                           <div class="modal-body">
-                            <p class="small">
-                              Create a new row using this form, make sure you
-                              fill them all
+                            <p class="small"> Create a new property using this form, make sure you fill them all
                             </p>
-                            <form>
+                            
                               <div class="row">
                                 <div class="col-sm-12">
                                   <div class="form-group form-group-default">
-                                    <label>Name</label>
-                                    <input
-                                      id="addName"
-                                      type="text"
-                                      class="form-control"
-                                      placeholder="fill name"
-                                    />
+                                    <label style="font-weight: bold; color: #333; size: 16px;">Property Name<span class="text-danger"> *</span></label>
+                                    <input name="name" type="text" class="form-control" placeholder="fill name" required/>
                                   </div>
                                 </div>
                                 <div class="col-md-6 pe-0">
                                   <div class="form-group form-group-default">
-                                    <label>Position</label>
-                                    <input
-                                      id="addPosition"
-                                      type="text"
-                                      class="form-control"
-                                      placeholder="fill position"
-                                    />
+                                    <label style="font-weight: bold; color: #333; size: 16px;">Property Type<span class="text-danger"> *</span></label>
+                                    <select name="type" class="form-control" required>
+                                    <option value="">Select Property Type</option>
+                                    <option value="residential">Residential</option>
+                                    <option value="commercial">Commercial</option>
+                                    </select>
                                   </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group form-group-default">
-                                    <label>Office</label>
-                                    <input
-                                      id="addOffice"
-                                      type="text"
-                                      class="form-control"
-                                      placeholder="fill office"
-                                    />
+                                    <label style="font-weight: bold; color: #333; size: 16px;">Address<span class="text-danger"> *</span></label>
+                                    <input name="address" type="text" class="form-control" placeholder="fill address" required/>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group form-group-default">
+                                    <label style="font-weight: bold; color: #333; size: 16px;">Price<span class="text-danger"> *</span></label>
+                                    <input name="price" type="number" class="form-control" placeholder="fill price" required/>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group form-group-default">
+                                    <label style="font-weight: bold; color: #333; size: 16px;">Number of Rooms<span class="text-danger"> *</span></label>
+                                    <input name="rooms" type="number" class="form-control" placeholder="fill number of rooms" required/>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group form-group-default">
+                                    <label style="font-weight: bold; color: #333; size: 16px;">Property Description<span class="text-danger"> *</span></label>
+                                    <input name="description" type="text" class="form-control" placeholder="fill description" required>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group form-group-default">
+                                    <label style="font-weight: bold; color: #333; size: 16px;">Occupancy<span class="text-danger"> *</span></label>
+                                    <select name="occupancy" class="form-control" required>
+                                    <option value="">Select Occupancy Status</option>
+                                    <option value="available">Available</option>
+                                    <option value="rented">Rented</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group form-group-default">
+                                    <label style="font-weight: bold; color: #333; size: 16px;">Image<span class="text-danger"> *</span></label>
+                                    <input name="Image" type="file" class="form-control" placeholder="fill image" required>
                                   </div>
                                 </div>
                               </div>
+                              <div class="modal-footer border-0">
+                               <button type="submit" name="add_property" class="btn btn-primary">Add</button>
+                               <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                              </div>
                             </form>
-                          </div>
-                          <div class="modal-footer border-0">
-                            <button
-                              type="button"
-                              id="addRowButton"
-                              class="btn btn-primary"
-                            >
-                              Add
-                            </button>
-                            <button
-                              type="button"
-                              class="btn btn-danger"
-                              data-dismiss="modal"
-                            >
-                              Close
-                            </button>
                           </div>
                         </div>
                       </div>
@@ -460,40 +461,62 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                         <thead>
                           <tr>
                             <th>Name</th>
-                            <th>Position</th>
-                            <th>Office</th>
+                            <th>Type</th>
+                            <th>Address</th>
+                            <th>Rental Price</th>
+                            <th>Number of Rooms</th>
+                            <th>Activation</th>
                             <th style="width: 10%">Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>Tiger Nixon</td>
-                            <td>System Architect</td>
-                            <td>Edinburgh</td>
-                            <td>
-                              <div class="form-button-action">
-                                <button
-                                  type="button"
-                                  data-bs-toggle="tooltip"
-                                  title=""
-                                  class="btn btn-link btn-primary btn-lg"
-                                  data-original-title="Edit Task"
-                                >
-                                  <i class="fa fa-edit"></i>
-                                </button>
-                                <button
-                                  type="button"
-                                  data-bs-toggle="tooltip"
-                                  title=""
-                                  class="btn btn-link btn-danger"
-                                  data-original-title="Remove"
-                                >
-                                  <i class="fa fa-times"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
+                        <?php
+                        $propertyQuery = mysqli_query($conn, "SELECT * FROM properties ORDER BY property_id DESC");
+
+                        while ($property = mysqli_fetch_assoc($propertyQuery)) {
+                        ?>
+                        <tr>
+                          <td><?= htmlspecialchars($property['property_name']); ?></td>
+                          <td><?= htmlspecialchars($property['property_type']); ?></td>
+                          <td><?= htmlspecialchars($property['address']); ?></td>
+                          <td>RM <?= number_format($property['rental_price'], 2); ?></td>
+                          <td><?= htmlspecialchars($property['number_of_rooms']); ?></td>
+
+                        <!-- Activation Toggle -->
+                        <td>
+                          <form action="toggleactivation.php" method="POST">
+                          <input type="hidden" name="property_id" value="<?= $property['property_id']; ?>">
+
+                        <?php if ($property['activation'] == 'active') { ?>
+                          <button type="submit" class="btn btn-success btn-sm">Active</button>
+                        <?php } else { ?>
+                          <button type="submit" class="btn btn-secondary btn-sm">Inactive</button>
+                        <?php } ?>
+                      </form>
+                    </td>
+
+                      <!-- Action Icons -->
+                      <td>
+                        <div class="d-flex justify-content-center gap-3">
+
+                      <!-- Edit -->
+                      <a href="updateproperty.php?id=<?= $property['property_id']; ?>" class="text-center text-primary text-decoration-none">
+                        <i class="fa fa-edit fa-lg"></i><br>
+                        <small class = "text-dark">Edit</small>
+                      </a>
+
+                      <!-- View -->
+                      <a href="viewproperty.php?id=<?= $property['property_id']; ?>" class="text-center text-primary text-decoration-none">
+                        <i class="fa fa-eye fa-lg"></i><br>
+                        <small class = "text-dark">View</small>
+                      </a>
+                  </div>
+                </td>
+              </tr>
+            <?php
+            }
+          ?>
+        </tbody>
                       </table>
                     </div>
                   </div>
@@ -558,18 +581,6 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
 
         var action =
           '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
-
-        $("#addRowButton").click(function () {
-          $("#add-row")
-            .dataTable()
-            .fnAddData([
-              $("#addName").val(),
-              $("#addPosition").val(),
-              $("#addOffice").val(),
-              action,
-            ]);
-          $("#addRowModal").modal("hide");
-        });
       });
     </script>
   </body>
