@@ -342,7 +342,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                       </li>
                       <li>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="../logout.php">Logout</a>
+                        <a class="dropdown-item" href="/TSE6223-Project-1/logout.php">Logout</a>
                       </li>
                     </div>
                   </ul>
@@ -368,7 +368,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
               <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             <?php } ?>
-            
+
             <!-- Table for Property Management -->
             <div class="row">
               <div class="col-md-12">
