@@ -72,6 +72,14 @@ $propertyQuery = mysqli_query(
 $totalProperties = mysqli_fetch_assoc($propertyQuery)['total'];
 
 
+// New Payments
+$paymentQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total FROM payments WHERE payment_date >= CURDATE() - INTERVAL 7 DAY"
+);
+$newPayments = mysqli_fetch_assoc($paymentQuery)['total'];
+
+
 // Total Maintenance Requests
 $maintenanceQuery = mysqli_query(
     $conn,
@@ -249,25 +257,11 @@ $transactionQuery = mysqli_query(
               </li>
 
               <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#leases">
+                <a href="lease.php">
                   <i class="fas fa-chalkboard-teacher"></i>
-                  <p>Lease</p>
-                  <span class="caret"></span>
+                  <p>Lease and Payments</p>
+                  <span class="badge badge-success"><?php echo $newPayments; ?></span>
                 </a>
-                <div class="collapse" id="leases">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="tables/leasemanagement.php">
-                        <span class="sub-item">Lease Management</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="tables/leasepayment.php">
-                        <span class="sub-item">Lease Payments</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
               </li>
 
               <li class="nav-item">
@@ -613,7 +607,7 @@ $transactionQuery = mysqli_query(
                             <i class="fas fa-ellipsis-h"></i>
                           </button>
                           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="tables/leasepayment.php">View Details</a>
+                            <a class="dropdown-item" href="tables/lease.php">View Details</a>
                           </div>
                         </div>
                       </div>
