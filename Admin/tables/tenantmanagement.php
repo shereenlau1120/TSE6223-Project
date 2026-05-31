@@ -12,6 +12,13 @@ $userId = $_SESSION['user_id'];
 $email = $_SESSION['email'];
 $userName = $_SESSION['user_name'];
 
+// Mark all tenant notifications as read when page is opened
+// Mark all tenant notifications as read when page is opened
+$updateRead = mysqli_query(
+    $conn,
+    "UPDATE users SET is_read = 1 WHERE role = 'tenant' AND is_read = 0"
+);
+
 // Total Tenants
 $tenantQuery = mysqli_query(
     $conn,
