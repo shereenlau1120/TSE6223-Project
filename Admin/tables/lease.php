@@ -427,82 +427,101 @@ $leaseQuery = mysqli_query(
                               <span aria-hidden="true">&times;</span>
                             </button>
                           </div>
-                          <form id="addLeaseForm" action="addleases.php" method="POST" enctype="multipart/form-data">
+                          <form id="addLeaseForm" action="addlease.php" method="POST" enctype="multipart/form-data">
                           <div class="modal-body">
-                            <p class="small"> Create a new lease using this form, make sure you fill them all
-                            </p>
-                            
-                              <div class="row">
-                                <div class="col-sm-12">
-                                  <div class="form-group form-group-default">
-                                    <label style="font-weight: bold; color: #333; size: 16px;">Property Name<span class="text-danger"> *</span></label>
-                                    <input id="propertyName"name="name" type="text" class="form-control" placeholder="fill name" required/>
-                                    <small id="nameError" class="error-text"></small>
-                                  </div>
-                                </div>
-                                <div class="col-md-6 pe-0">
-                                  <div class="form-group form-group-default">
-                                    <label style="font-weight: bold; color: #333; size: 16px;">Property Type<span class="text-danger"> *</span></label>
-                                    <select id="propertyType"name="type" class="form-control" required>
-                                    <option value="">Select Property Type</option>
-                                    <option value="residential">Residential</option>
-                                    <option value="commercial">Commercial</option>
-                                    </select>
-                                    <small id="typeError" class="error-text"></small>
-                                  </div>
-                                </div>
-                                <div class="col-md-6">
-                                  <div class="form-group form-group-default">
-                                    <label style="font-weight: bold; color: #333; size: 16px;">Address<span class="text-danger"> *</span></label>
-                                    <input id="propertyAddress"name="address" type="text" class="form-control" placeholder="fill address" required/>
-                                    <small id="addressError" class="error-text"></small>
-                                  </div>
-                                </div>
-                                <div class="col-md-6">
-                                  <div class="form-group form-group-default">
-                                    <label style="font-weight: bold; color: #333; size: 16px;">Price<span class="text-danger"> *</span></label>
-                                    <input id="propertyPrice"name="price" type="number" class="form-control" min="0.01" step="0.01"placeholder="fill price" required/>
-                                    <small id="priceError" class="error-text"></small>
-                                  </div>
-                                </div>
-                                <div class="col-md-6">
-                                  <div class="form-group form-group-default">
-                                    <label style="font-weight: bold; color: #333; size: 16px;">Number of Rooms<span class="text-danger"> *</span></label>
-                                    <input id="propertyRooms"name="rooms" type="number" class="form-control" min="1" step="1" placeholder="fill number of rooms" required/>
-                                    <small id="roomsError" class="error-text"></small>
-                                  </div>
-                                </div>
-                                <div class="col-md-6">
-                                  <div class="form-group form-group-default">
-                                    <label style="font-weight: bold; color: #333; size: 16px;">Property Description<span class="text-danger"> *</span></label>
-                                    <input id="propertyDescription"name="description" type="text" class="form-control" placeholder="fill description" required>
-                                    <small id="descriptionError" class="error-text"></small>
-                                  </div>
-                                </div>
-                                <div class="col-md-6">
-                                  <div class="form-group form-group-default">
-                                    <label style="font-weight: bold; color: #333; size: 16px;">Occupancy<span class="text-danger"> *</span></label>
-                                    <select id="propertyOccupancy" name="occupancy" class="form-control" required>
-                                    <option value="">Select Occupancy Status</option>
-                                    <option value="available">Available</option>
-                                    <option value="rented">Rented</option>
-                                    </select>
-                                    <small id="occupancyError" class="error-text"></small>
-                                  </div>
-                                </div>
-                                <div class="col-md-6">
-                                  <div class="form-group form-group-default">
-                                    <label style="font-weight: bold; color: #333; size: 16px;">Image<span class="text-danger"> *</span></label>
-                                    <input id="propertyImage" name="Image" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" placeholder="fill image" required>
-                                    <small id="imageError" class="error-text"></small>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="modal-footer border-0">
-                               <button type="submit" name="add_property" class="btn btn-primary">Add</button>
-                               <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                              </div>
-                            </form>
+                          <p class="small">Fill all fields to create a new lease</p>
+
+                          <div class="row">
+                          <!-- Tenant -->
+                          <div class="col-md-12">
+                          <div class="form-group form-group-default">
+                          <label>Tenant <span class="text-danger">*</span></label>
+                          <select name="tenant_id" class="form-control" required>
+                          <option value="">Select Tenant</option>
+                          <?php
+                            $tenants = mysqli_query($conn, "SELECT user_id, full_name FROM users WHERE role='tenant' AND status='active'");
+                            while($t = mysqli_fetch_assoc($tenants)) {
+                            echo "<option value='{$t['user_id']}'>{$t['full_name']}</option>";
+                          }
+                          ?>
+                          </select>
+                          <small class="error-text"></small>
+                          </div>
+                          </div>
+
+                          <!-- Property -->
+                          <div class="col-md-12">
+                          <div class="form-group form-group-default">
+                          <label>Property <span class="text-danger">*</span></label>
+                          <select name="property_id" class="form-control" required>
+                          <option value="">Select Property</option>
+                          <?php
+                          $properties = mysqli_query($conn, "SELECT property_id, property_name FROM properties WHERE occupancy_status='available'");
+                          while($p = mysqli_fetch_assoc($properties)) {
+                          echo "<option value='{$p['property_id']}'>{$p['property_name']}</option>";
+                          }
+                          ?>
+                          </select>
+                          <small class="error-text"></small>
+                          </div>
+                          </div>
+
+                          <!-- Lease Start Date -->
+                          <div class="col-md-6">
+                          <div class="form-group form-group-default">
+                          <label>Start Date <span class="text-danger">*</span></label>
+                          <input type="date" name="lease_start_date" class="form-control" required>
+                          <small class="error-text"></small>
+                          </div>
+                          </div>
+
+                          <!-- Lease End Date -->
+                          <div class="col-md-6">
+                          <div class="form-group form-group-default">
+                          <label>End Date <span class="text-danger">*</span></label>
+                          <input type="date" name="lease_end_date" class="form-control" required>
+                          <small class="error-text"></small>
+                          </div>
+                          </div>
+
+                          <!-- Monthly Rent -->
+                          <div class="col-md-6">
+                          <div class="form-group form-group-default">
+                          <label>Monthly Rent (RM) <span class="text-danger">*</span></label>
+                          <input type="number" step="0.01" name="monthly_rent" class="form-control" min="0" required>
+                          <small class="error-text"></small>
+                          </div>
+                          </div>
+
+                          <!--Lease Agreement File-->
+                          <div class="col-md-12">
+                          <div class="form-group form-group-default">
+                          <label style="font-weight:bold;"> Lease Agreement PDF
+                          <span class="text-danger">*</span>
+                          </label>
+
+                          <input type="file" name="lease_document" id="leaseDocument" class="form-control" accept=".pdf" required>
+                          <small class="text-muted"> Upload signed lease agreement (.pdf only)</small>
+                          <small id="documentError" class="error-text"></small>
+                          </div>
+                          </div>
+
+                          <!-- Lease Status -->
+                          <div class="col-md-6">
+                          <div class="form-group form-group-default">
+                          <label>Status <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" value="Active" readonly>
+                          <input type="hidden" name="lease_status" value="active">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  <div class="modal-footer border-0">
+                  <button type="submit" name="add_lease" class="btn btn-primary">Add Lease</button>
+                  <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
                           </div>
                         </div>
                       </div>
@@ -522,6 +541,7 @@ $leaseQuery = mysqli_query(
                             <th>End Date</th>
                             <th>Monthly Rent</th>
                             <th>Status</th>
+                            <th>Agreement</th>        
                             <th style="width: 10%">Action</th>
                           </tr>
                         </thead>
@@ -565,6 +585,18 @@ $leaseQuery = mysqli_query(
                               echo '<span class="badge bg-danger">Terminated</span>';
                             }
                           ?>
+                          </td>
+
+                          <td>
+                          <?php if (!empty($lease['lease_document'])) { ?>
+                            <a href="../uploads/<?= htmlspecialchars($lease['lease_document']); ?>"
+                              target="_blank"
+                              class="btn btn-sm btn-info">
+                              View PDF
+                            </a>
+                          <?php } else { ?>
+                            <span class="text-muted">No file</span>
+                          <?php } ?>
                           </td>
 
                           <td>
