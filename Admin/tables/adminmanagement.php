@@ -12,11 +12,10 @@ $userId = $_SESSION['user_id'];
 $email = $_SESSION['email'];
 $userName = $_SESSION['user_name'];
 
-// Mark all tenant notifications as read when page is opened
-// Mark all tenant notifications as read when page is opened
+// Mark all admin notifications as read when page is opened
 $updateRead = mysqli_query(
     $conn,
-    "UPDATE users SET is_read = 1 WHERE role = 'tenant' AND is_read = 0"
+    "UPDATE users SET is_read = 1 WHERE role = 'admin' AND is_read = 0"
 );
 
 // Total Tenants
@@ -107,7 +106,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Tenant Management</title>
+    <title>Admin Management</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -356,12 +355,12 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
         <div class="container">
           <div class="page-inner">
             <div class="page-header">
-              <h3 class="fw-bold mb-3">Tenant Management Table</h3>
+              <h3 class="fw-bold mb-3">Admin Management Table</h3>
               <ul class="breadcrumbs mb-3">
               </ul>
             </div>
 
-            <!-- Table for Tenant Management -->
+            <!-- Table for Admin Management -->
             <div class="row">
               
             <div class="col-md-12">
@@ -405,7 +404,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                         </thead>
                         <tbody>
                         <?php
-                        $propertyQuery = mysqli_query($conn, "SELECT * FROM users WHERE role='tenant' ORDER BY user_id ASC");
+                        $propertyQuery = mysqli_query($conn, "SELECT * FROM users WHERE role='admin' ORDER BY user_id ASC");
 
                         while ($property = mysqli_fetch_assoc($propertyQuery)) {
                         ?>
@@ -416,7 +415,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
 
                         <!-- Activation Toggle -->
                         <td>
-                          <form action="tenantactivation.php" method="POST">
+                          <form action="#" method="POST">
                           <input type="hidden" name="user_id" value="<?= $property['user_id']; ?>">
 
                         <?php if ($property['status'] == 'active') { ?>
@@ -431,14 +430,8 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                       <td>
                         <div class="d-flex justify-content-center gap-3">
 
-                      <!-- Edit -->
-                      <a href="updatetenant.php?id=<?= $property['user_id']; ?>" class="text-center text-primary text-decoration-none">
-                        <i class="fa fa-edit fa-lg"></i><br>
-                        <small class = "text-dark">Edit</small>
-                      </a>
-
                       <!-- View -->
-                      <a href="viewtenant.php?id=<?= $property['user_id']; ?>" class="text-center text-primary text-decoration-none">
+                      <a href="viewadmin.php?id=<?= $property['user_id']; ?>" class="text-center text-primary text-decoration-none">
                         <i class="fa fa-eye fa-lg"></i><br>
                         <small class = "text-dark">View</small>
                       </a>
