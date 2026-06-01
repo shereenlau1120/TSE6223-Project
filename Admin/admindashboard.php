@@ -257,9 +257,16 @@ $transactionQuery = mysqli_query(
               </li>
 
               <li class="nav-item">
-                <a href="lease.php">
+                <a href="tables/lease.php">
                   <i class="fas fa-chalkboard-teacher"></i>
-                  <p>Lease and Payments</p>
+                  <p>Lease</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="tables/payments.php">
+                  <i class="fas fa-wallet"></i>
+                  <p>Payments</p>
                   <span class="badge badge-success"><?php echo $newPayments; ?></span>
                 </a>
               </li>
