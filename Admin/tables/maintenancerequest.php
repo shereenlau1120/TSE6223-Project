@@ -108,7 +108,7 @@ $result = mysqli_query($conn, "
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Payment Management</title>
+    <title>Maintenance Request Management</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -406,148 +406,50 @@ $result = mysqli_query($conn, "
                           <tr style="text-align: center">
                             <th>Tenant</th>
                             <th>Property</th>
-                            <th>Date</th>
-                            <th>Amount</th>
+                            <th>Issue</th>
+                            <th>Priority</th>
                             <th>Status</th>
-                            <th>Receipt</th>
+                            <th>Date</th>
                             <th style="width: 20%">Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                        <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-
-                        <tr>
-                          <td><?= htmlspecialchars($row['full_name']) ?></td>
-                          <td><?= htmlspecialchars($row['property_name']) ?></td>
-                          <td><?= $row['request_date'] ?></td>
-                          <td>RM <?= number_format($row['request_amount'],2) ?></td>
-
+                        <?php while($row = mysqli_fetch_assoc($result)) { ?>
+                          <tr>
+                          <td><?= $row['full_name'] ?></td>
+                          <td><?= $row['property_name'] ?></td>
+                          <td><?= $row['issue_title'] ?></td>
                           <td>
-                          <?php
-                            $status = strtolower($row['request_status']);
-
-                            if ($status == 'paid') {
-                                $color = 'success';
-                            } elseif ($status == 'pending') {
-                                $color = 'warning';
-                            } elseif ($status == 'rejected') {
-                                $color = 'secondary'; // GREY
-                            } elseif ($status == 'overdue') {
-                                $color = 'danger'; // RED
-                            } else {
-                                $color = 'dark'; // Default color for unknown status
-                            }
-                            ?>
-
-                          <span class="badge bg-<?= $color ?>">
-                              <?= strtoupper($status) ?>
+                          <span class="badge bg-<?=
+                              $row['priority_level']=='high'?'danger':
+                              ($row['priority_level']=='medium'?'warning':'secondary')
+                          ?>">
+                          <?= strtoupper($row['priority_level']) ?>
                           </span>
                           </td>
 
                           <td>
-                          <?php
-                            $filePath = $row['receipt_file'];
-                            $file = "../" . $filePath;
-                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                            ?>
-
-                            <?php if (!empty($filePath)) { ?>
-
-                                <?php if (in_array($ext, ['jpg','jpeg','png'])) { ?>
-
-                                    <img src="<?= $file ?>"
-                                        style="width:80px; height:80px; object-fit:cover; cursor:pointer"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#img<?= $row['payment_id'] ?>">
-
-                                <?php } elseif ($ext === 'pdf') { ?>
-
-                                    <a href="<?= $file ?>"
-                                      target="_blank"
-                                      class="btn btn-sm btn-danger">
-                                      View PDF
-                                    </a>
-
-                                <?php } else { ?>
-
-                                    <span class="text-muted">Unsupported file</span>
-
-                                <?php } ?>
-
-                            <?php } else { ?>
-
-                                <span class="text-muted">No file</span>
-
-                          <?php } ?>
+                          <span class="badge bg-<?=
+                              $row['request_status']=='pending'?'warning':
+                              ($row['request_status']=='in_progress'?'primary':'success')
+                          ?>">
+                          <?= strtoupper($row['request_status']) ?>
+                          </span>
                           </td>
+
+                          <td><?= $row['request_date'] ?></td>
                           <td>
-                          <!-- APPROVE -->
-                          <a href="paymentstatus.php?id=<?= $row['payment_id'] ?>&status=paid" class="btn btn-success btn-sm">
-                          Approve
+                          <div class="d-flex justify-content-center gap-3">
+                          <a href="viewmaintenance.php?id=<?= $row['request_id'] ?>">
+                          <i class="fa fa-eye fa-lg"></i><br>
+                          <small class = "text-dark">View</small>
                           </a>
-
-                          <!-- REJECT -->
-                          <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejected<?= $row['payment_id'] ?>">
-                          Reject
-                          </button>
-                          </td>
-                        </tr>
-
-                        <!-- REJECT MODAL -->
-                        <div class="modal fade" id="rejected<?= $row['payment_id'] ?>">
-
-                        <div class="modal-dialog">
-
-                        <div class="modal-content">
-
-                        <form method="POST" action="paymentstatus.php">
-                        <div class="modal-header bg-danger text-white">
-                            <h5>Reject Payment</h5>
-                        </div>
-
-                        <div class="modal-body">
-                          <input type="hidden" name="id" value="<?= $row['payment_id'] ?>">
-                          <input type="hidden" name="status" value="rejected">
-                          <label>Remark (Reason)</label>
-                          <textarea name="remarks" class="form-control" required></textarea>
                           </div>
-
-                          <div class="modal-footer">
-
-                          <button class="btn btn-secondary" data-bs-dismiss="modal">
-                          Cancel
-                          </button>
-
-                          <button class="btn btn-danger">
-                          Confirm Reject
-                          </button>
-                        </div>
-                        </form>
-                        </div>
-                        </div>
-                        </div>
-                        <?php } ?>
+                          </td>
+                          </tr>
+                          <?php } ?>
                       </tbody>
                       </table>
-
-                      <?php foreach ($result as $row) { ?>
-                        <div class="modal fade" id="img<?= $row['payment_id'] ?>" tabindex="-1">
-                          <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title">Receipt Preview</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                              </div>
-
-                              <div class="modal-body text-center">
-                                <img src="../<?= $row['receipt_file'] ?>"
-                                    class="img-fluid"
-                                    style="max-height:80vh;">
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      <?php } ?>
                     </div>
                   </div>
                 </div>
