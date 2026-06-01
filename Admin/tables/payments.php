@@ -7,12 +7,6 @@ if (!isset($_SESSION['user_id'])) {
 }
 include '..\databaseconnection.php';
 
-//For update the is_read status of maintenance request when admin clicks on the maintenance request menu
-$updateRead = mysqli_query(
-    $conn,
-    "UPDATE maintenance_requests SET is_read = 1 WHERE is_read = 0"
-);
-
 // Fetch logged-in user details
 $userId = $_SESSION['user_id'];
 $email = $_SESSION['email'];
@@ -100,13 +94,22 @@ $newMaintenanceQuery = mysqli_query(
      WHERE is_read = 0"
 );
 $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
+
+$result = mysqli_query($conn, "
+    SELECT p.*, u.full_name, pr.property_name
+    FROM payments p
+    JOIN leases l ON p.lease_id = l.lease_id
+    JOIN users u ON l.tenant_id = u.user_id
+    JOIN properties pr ON l.property_id = pr.property_id
+    ORDER BY p.created_at DESC
+");
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Maintenance Request Management</title>
+    <title>Payment Management</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -141,6 +144,20 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="../assets/css/plugins.min.css" />
     <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
+
+    <style>
+    .is-invalid {
+      border: 2px solid #dc3545 !important;
+    }
+
+    .error-text {
+      color: #dc3545;
+      font-size: 12px;
+      display: block;
+      margin-top: 4px;
+      min-height: 18px;
+    }
+    </style>
 
   </head>
   <body>
@@ -334,7 +351,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                       </li>
                       <li>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="../logout.php">Logout</a>
+                        <a class="dropdown-item" href="/TSE6223-Project-1/logout.php">Logout</a>
                       </li>
                     </div>
                   </ul>
@@ -348,27 +365,20 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
         <div class="container">
           <div class="page-inner">
             <div class="page-header">
-              <h3 class="fw-bold mb-3">Maintenance RequestTable</h3>
+              <h3 class="fw-bold mb-3">Payment Management Table</h3>
               <ul class="breadcrumbs mb-3">
               </ul>
             </div>
 
-            <!-- Table for Property Management -->
+            <!-- Table for Payment Management -->
             <div class="row">
-              <div class="col-md-12">
+              
+            <div class="col-md-12">
+                <div class="col-md-12">
                 <div class="card">
                   <div class="card-header">
-                    <div class="d-flex align-items-center">
-                      <h4 class="card-title">Add Row</h4>
-                      <button
-                        class="btn btn-primary btn-round ms-auto"
-                        data-bs-toggle="modal"
-                        data-bs-target="#addRowModal"
-                      >
-                        <i class="fa fa-plus"></i>
-                        Add Row
-                      </button>
-                    </div>
+                    <div class="card-head-row">
+                      <div class="card-title"></div>
                   </div>
                   <div class="card-body">
                     <!-- Modal -->
@@ -382,77 +392,7 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                       <div class="modal-dialog" role="document">
                         <div class="modal-content">
                           <div class="modal-header border-0">
-                            <h5 class="modal-title">
-                              <span class="fw-mediumbold"> New</span>
-                              <span class="fw-light"> Row </span>
-                            </h5>
-                            <button
-                              type="button"
-                              class="close"
-                              data-dismiss="modal"
-                              aria-label="Close"
-                            >
-                              <span aria-hidden="true">&times;</span>
-                            </button>
                           </div>
-                          <div class="modal-body">
-                            <p class="small">
-                              Create a new row using this form, make sure you
-                              fill them all
-                            </p>
-                            <form>
-                              <div class="row">
-                                <div class="col-sm-12">
-                                  <div class="form-group form-group-default">
-                                    <label>Name</label>
-                                    <input
-                                      id="addName"
-                                      type="text"
-                                      class="form-control"
-                                      placeholder="fill name"
-                                    />
-                                  </div>
-                                </div>
-                                <div class="col-md-6 pe-0">
-                                  <div class="form-group form-group-default">
-                                    <label>Position</label>
-                                    <input
-                                      id="addPosition"
-                                      type="text"
-                                      class="form-control"
-                                      placeholder="fill position"
-                                    />
-                                  </div>
-                                </div>
-                                <div class="col-md-6">
-                                  <div class="form-group form-group-default">
-                                    <label>Office</label>
-                                    <input
-                                      id="addOffice"
-                                      type="text"
-                                      class="form-control"
-                                      placeholder="fill office"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </form>
-                          </div>
-                          <div class="modal-footer border-0">
-                            <button
-                              type="button"
-                              id="addRowButton"
-                              class="btn btn-primary"
-                            >
-                              Add
-                            </button>
-                            <button
-                              type="button"
-                              class="btn btn-danger"
-                              data-dismiss="modal"
-                            >
-                              Close
-                            </button>
                           </div>
                         </div>
                       </div>
@@ -464,42 +404,93 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
                         class="display table table-striped table-hover"
                       >
                         <thead>
-                          <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Office</th>
-                            <th style="width: 10%">Action</th>
+                          <tr style="text-align: center">
+                            <th>Tenant</th>
+                            <th>Property</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Receipt</th>
+                            <th style="width: 20%">Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>Tiger Nixon</td>
-                            <td>System Architect</td>
-                            <td>Edinburgh</td>
-                            <td>
-                              <div class="form-button-action">
-                                <button
-                                  type="button"
-                                  data-bs-toggle="tooltip"
-                                  title=""
-                                  class="btn btn-link btn-primary btn-lg"
-                                  data-original-title="Edit Task"
-                                >
-                                  <i class="fa fa-edit"></i>
-                                </button>
-                                <button
-                                  type="button"
-                                  data-bs-toggle="tooltip"
-                                  title=""
-                                  class="btn btn-link btn-danger"
-                                  data-original-title="Remove"
-                                >
-                                  <i class="fa fa-times"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
+                        <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+
+                        <tr>
+                          <td><?= htmlspecialchars($row['full_name']) ?></td>
+                          <td><?= htmlspecialchars($row['property_name']) ?></td>
+                          <td><?= $row['payment_date'] ?></td>
+                          <td>RM <?= number_format($row['payment_amount'],2) ?></td>
+
+                          <td>
+                          <span class="badge bg-<?=$row['payment_status']=='paid'?'success':
+                            ($row['payment_status']=='pending'?'warning':'danger') ?>">
+                            <?= strtoupper($row['payment_status']) ?>
+                          </span>
+                          </td>
+
+                          <td>
+                          <?php if ($row['receipt_file']) { ?>
+                            <a class="btn btn-sm btn-info" target="_blank" href="../<?= $row['receipt_file'] ?>">
+                            View
+                            </a>
+                          <?php } else { ?>
+                          <span class="text-muted">No file</span>
+                          <?php } ?>
+                          </td>
+
+                          <td>
+                          <!-- APPROVE -->
+                          <a href="paymentstatus.php?id=<?= $row['payment_id'] ?>&status=paid" class="btn btn-success btn-sm">
+                          Approve
+                          </a>
+
+                          <!-- REJECT -->
+                          <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#reject<?= $row['payment_id'] ?>">
+                          Reject
+                          </button>
+                          </td>
+                        </tr>
+
+                        <!-- REJECT MODAL -->
+                        <div class="modal fade" id="reject<?= $row['payment_id'] ?>">
+
+                        <div class="modal-dialog">
+
+                        <div class="modal-content">
+
+                        <form method="POST" action="paymentstatus.php">
+
+                        <div class="modal-header bg-danger text-white">
+                            <h5>Reject Payment</h5>
+                        </div>
+
+                        <div class="modal-body">
+
+                          <input type="hidden" name="id" value="<?= $row['payment_id'] ?>">
+
+                          <label>Remark (Reason)</label>
+                          <textarea name="remarks" class="form-control" required></textarea>
+
+                          </div>
+
+                          <div class="modal-footer">
+
+                          <button class="btn btn-secondary" data-bs-dismiss="modal">
+                          Cancel
+                          </button>
+
+                          <button class="btn btn-danger">
+                          Confirm Reject
+                          </button>
+                        </div>
+                        </form>
+                        </div>
+                        </div>
+                        </div>
+                        <?php } ?>
+                      </tbody>
                       </table>
                     </div>
                   </div>
@@ -561,22 +552,141 @@ $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
         $("#add-row").DataTable({
           pageLength: 5,
         });
-
         var action =
           '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
-
-        $("#addRowButton").click(function () {
-          $("#add-row")
-            .dataTable()
-            .fnAddData([
-              $("#addName").val(),
-              $("#addPosition").val(),
-              $("#addOffice").val(),
-              action,
-            ]);
-          $("#addRowModal").modal("hide");
-        });
       });
     </script>
+
+    <script>
+  document.getElementById("addPropertyForm").addEventListener("submit", function(e){
+
+    let valid = true;
+
+    document.querySelectorAll(".error-text").forEach(error => {
+    error.textContent = "";
+    });
+
+    document.querySelectorAll(".form-control").forEach(field => {
+    field.classList.remove("is-invalid");
+    });
+
+    const name = document.getElementById("propertyName");
+    const address = document.getElementById("propertyAddress");
+    const price = document.getElementById("propertyPrice");
+    const rooms = document.getElementById("propertyRooms");
+    const description = document.getElementById("propertyDescription");
+    const image = document.getElementById("propertyImage");
+
+    // Reset borders
+    document.querySelectorAll(".form-control").forEach(field => {
+        field.addEventListener("input", function(){
+        this.classList.remove("is-invalid");
+    });
+
+    field.addEventListener("change", function(){
+        this.classList.remove("is-invalid");
+    });
+});
+
+    // Property Name
+    if(name.value.trim() === ""){
+    name.classList.add("is-invalid");
+    document.getElementById("nameError").textContent =
+        "Property name is required.";
+    valid = false;
+    }
+    else if(!/^[A-Za-z\s]+$/.test(name.value.trim())){
+    name.classList.add("is-invalid");
+    document.getElementById("nameError").textContent = "Only letters and spaces are allowed.";
+    valid = false;
+    }
+
+    // Address
+    if(address.value.trim().length < 5){
+        address.classList.add("is-invalid");
+        document.getElementById("addressError").textContent =
+            "Address must be at least 5 characters long.";
+        valid = false;
+    }
+
+    // Price (float > 0)
+    if(price.value.trim() === ""){
+    price.classList.add("is-invalid");
+    document.getElementById("priceError").textContent =
+        "Rental price is required.";
+    valid = false;
+    }
+    else if(isNaN(price.value) || parseFloat(price.value) <= 0){
+    price.classList.add("is-invalid");
+    document.getElementById("priceError").textContent =
+        "Price must be greater than 0.";
+    valid = false;
+    }
+
+    // Number of Rooms (integer > 0)
+    if(rooms.value.trim() === ""){
+    rooms.classList.add("is-invalid");
+    document.getElementById("roomsError").textContent =
+        "Number of rooms is required.";
+    valid = false;
+    }
+    else if(!Number.isInteger(Number(rooms.value)) || Number(rooms.value) <= 0){
+    rooms.classList.add("is-invalid");
+    document.getElementById("roomsError").textContent =
+        "Rooms must be a positive whole number.";
+    valid = false;
+    }
+
+    // Description
+    if(description.value.trim().length < 10){
+        description.classList.add("is-invalid");
+        document.getElementById("descriptionError").textContent =
+            "Description must be at least 10 characters long.";
+        valid = false;
+    }
+
+    // Image Required + Format Validation
+    if(image.files.length === 0){
+    image.classList.add("is-invalid");
+    document.getElementById("imageError").textContent =
+        "Please upload a property image.";
+    valid = false;
+    }
+    else {
+    const allowedExtensions = ["jpg","jpeg","png","gif","webp"];
+
+    const fileName = image.files[0].name.toLowerCase();
+    const extension = fileName.split(".").pop();
+
+    if(!allowedExtensions.includes(extension)){
+        image.classList.add("is-invalid");
+        document.getElementById("imageError").textContent =
+            "Only JPG, JPEG, PNG, GIF and WEBP files are allowed.";
+        valid = false;
+    }
+   }
+
+    if(!valid){
+        e.preventDefault();
+    }
+  });
+
+  // Remove error when corrected
+document.querySelectorAll(".form-control").forEach(field => {
+    field.addEventListener("input", () => {
+        field.classList.remove("is-invalid");
+        const errorId = field.id.replace("property","").toLowerCase() + "Error";
+        const errorElement = document.getElementById(errorId);
+        if(errorElement) errorElement.textContent = "";
+    });
+
+    field.addEventListener("change", () => {
+        field.classList.remove("is-invalid");
+        const errorId = field.id.replace("property","").toLowerCase() + "Error";
+        const errorElement = document.getElementById(errorId);
+        if(errorElement) errorElement.textContent = "";
+    });
+});
+  </script>
   </body>
 </html>
