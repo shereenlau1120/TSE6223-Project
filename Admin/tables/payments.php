@@ -74,7 +74,7 @@ $totalProperties = mysqli_fetch_assoc($propertyQuery)['total'];
 // New Payments
 $paymentQuery = mysqli_query(
     $conn,
-    "SELECT COUNT(*) AS total FROM payments WHERE payment_date >= CURDATE() - INTERVAL 7 DAY"
+    "SELECT COUNT(*) AS total FROM payments WHERE payment_status = 'pending'"
 );
 $newPayments = mysqli_fetch_assoc($paymentQuery)['total'];
 
@@ -424,22 +424,63 @@ $result = mysqli_query($conn, "
                           <td>RM <?= number_format($row['payment_amount'],2) ?></td>
 
                           <td>
-                          <span class="badge bg-<?=$row['payment_status']=='paid'?'success':
-                            ($row['payment_status']=='pending'?'warning':'danger') ?>">
-                            <?= strtoupper($row['payment_status']) ?>
+                          <?php
+                            $status = strtolower($row['payment_status']);
+
+                            if ($status == 'paid') {
+                                $color = 'success';
+                            } elseif ($status == 'pending') {
+                                $color = 'warning';
+                            } elseif ($status == 'rejected') {
+                                $color = 'secondary'; // GREY
+                            } elseif ($status == 'overdue') {
+                                $color = 'danger'; // RED
+                            } else {
+                                $color = 'dark'; // Default color for unknown status
+                            }
+                            ?>
+
+                          <span class="badge bg-<?= $color ?>">
+                              <?= strtoupper($status) ?>
                           </span>
                           </td>
 
                           <td>
-                          <?php if ($row['receipt_file']) { ?>
-                            <a class="btn btn-sm btn-info" target="_blank" href="../<?= $row['receipt_file'] ?>">
-                            View
-                            </a>
-                          <?php } else { ?>
-                          <span class="text-muted">No file</span>
+                          <?php
+                            $filePath = $row['receipt_file'];
+                            $file = "../" . $filePath;
+                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            ?>
+
+                            <?php if (!empty($filePath)) { ?>
+
+                                <?php if (in_array($ext, ['jpg','jpeg','png'])) { ?>
+
+                                    <img src="<?= $file ?>"
+                                        style="width:80px; height:80px; object-fit:cover; cursor:pointer"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#img<?= $row['payment_id'] ?>">
+
+                                <?php } elseif ($ext === 'pdf') { ?>
+
+                                    <a href="<?= $file ?>"
+                                      target="_blank"
+                                      class="btn btn-sm btn-danger">
+                                      View PDF
+                                    </a>
+
+                                <?php } else { ?>
+
+                                    <span class="text-muted">Unsupported file</span>
+
+                                <?php } ?>
+
+                            <?php } else { ?>
+
+                                <span class="text-muted">No file</span>
+
                           <?php } ?>
                           </td>
-
                           <td>
                           <!-- APPROVE -->
                           <a href="paymentstatus.php?id=<?= $row['payment_id'] ?>&status=paid" class="btn btn-success btn-sm">
@@ -447,32 +488,29 @@ $result = mysqli_query($conn, "
                           </a>
 
                           <!-- REJECT -->
-                          <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#reject<?= $row['payment_id'] ?>">
+                          <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejected<?= $row['payment_id'] ?>">
                           Reject
                           </button>
                           </td>
                         </tr>
 
                         <!-- REJECT MODAL -->
-                        <div class="modal fade" id="reject<?= $row['payment_id'] ?>">
+                        <div class="modal fade" id="rejected<?= $row['payment_id'] ?>">
 
                         <div class="modal-dialog">
 
                         <div class="modal-content">
 
                         <form method="POST" action="paymentstatus.php">
-
                         <div class="modal-header bg-danger text-white">
                             <h5>Reject Payment</h5>
                         </div>
 
                         <div class="modal-body">
-
                           <input type="hidden" name="id" value="<?= $row['payment_id'] ?>">
-
+                          <input type="hidden" name="status" value="rejected">
                           <label>Remark (Reason)</label>
                           <textarea name="remarks" class="form-control" required></textarea>
-
                           </div>
 
                           <div class="modal-footer">
@@ -492,6 +530,25 @@ $result = mysqli_query($conn, "
                         <?php } ?>
                       </tbody>
                       </table>
+
+                      <?php foreach ($result as $row) { ?>
+                        <div class="modal fade" id="img<?= $row['payment_id'] ?>" tabindex="-1">
+                          <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title">Receipt Preview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                              </div>
+
+                              <div class="modal-body text-center">
+                                <img src="../<?= $row['receipt_file'] ?>"
+                                    class="img-fluid"
+                                    style="max-height:80vh;">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      <?php } ?>
                     </div>
                   </div>
                 </div>
@@ -505,6 +562,7 @@ $result = mysqli_query($conn, "
     <script src="../assets/js/core/jquery-3.7.1.min.js"></script>
     <script src="../assets/js/core/popper.min.js"></script>
     <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/bootstrap.bundle.min.js"></script>
 
     <!-- jQuery Scrollbar -->
     <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>

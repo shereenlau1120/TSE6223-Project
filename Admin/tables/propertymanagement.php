@@ -74,7 +74,7 @@ $totalProperties = mysqli_fetch_assoc($propertyQuery)['total'];
 // New Payments
 $paymentQuery = mysqli_query(
     $conn,
-    "SELECT COUNT(*) AS total FROM payments WHERE payment_date >= CURDATE() - INTERVAL 7 DAY"
+    "SELECT COUNT(*) AS total FROM payments WHERE payment_status = 'pending'"
 );
 $newPayments = mysqli_fetch_assoc($paymentQuery)['total'];
 

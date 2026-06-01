@@ -104,6 +104,13 @@ $incomeQuery = mysqli_query(
      WHERE payment_status='paid'"
 );
 
+// New Payments
+$paymentQuery = mysqli_query(
+    $conn,
+    "SELECT COUNT(*) AS total FROM payments WHERE payment_status = 'pending'"
+);
+$newPayments = mysqli_fetch_assoc($paymentQuery)['total'];
+
 $totalIncome = mysqli_fetch_assoc($incomeQuery)['total'];
 
 if ($totalIncome == null) {

@@ -1,21 +1,42 @@
 <?php
 include '../databaseconnection.php';
 
-$id = intval($_POST['id']);
-$status = $_POST['status'] ?? $_GET['status'];
+/* =========================
+   GET ID (support GET + POST)
+   ========================= */
+$id = intval($_POST['id'] ?? $_GET['id'] ?? 0);
+
+if ($id <= 0) {
+    die("Invalid payment ID");
+}
+
+/* =========================
+   GET STATUS (GET or POST)
+   ========================= */
+$status = $_POST['status'] ?? $_GET['status'] ?? null;
+
+/* =========================
+   GET REMARKS (only POST)
+   ========================= */
 $remarks = $_POST['remarks'] ?? null;
 
-/* VALIDATE */
-if (!in_array($status, ['paid','rejected'])) {
+/* =========================
+   VALIDATE STATUS
+   ========================= */
+if (!in_array($status, ['paid', 'rejected'])) {
     die("Invalid status");
 }
 
-/* REQUIRE REMARK IF REJECTED */
+/* =========================
+   REQUIRE REMARK IF REJECT
+   ========================= */
 if ($status == 'rejected' && empty($remarks)) {
-    die("Remark required");
+    die("Remark is required for rejection");
 }
 
-/* UPDATE */
+/* =========================
+   UPDATE PAYMENT
+   ========================= */
 $stmt = $conn->prepare("
     UPDATE payments
     SET payment_status = ?, remarks = ?
@@ -25,7 +46,9 @@ $stmt = $conn->prepare("
 $stmt->bind_param("ssi", $status, $remarks, $id);
 $stmt->execute();
 
-/* GET TENANT */
+/* =========================
+   GET TENANT ID
+   ========================= */
 $get = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT l.tenant_id
     FROM payments p
@@ -33,24 +56,28 @@ $get = mysqli_fetch_assoc(mysqli_query($conn, "
     WHERE p.payment_id = $id
 "));
 
+/* =========================
+   SEND NOTIFICATION
+   ========================= */
 if ($get) {
 
     $msg = ($status == 'paid')
         ? "Your payment has been approved."
-        : "Payment rejected: $remarks";
+        : "Your payment was rejected. Reason: $remarks";
 
-    mysqli_query($conn, "
+    $stmt2 = $conn->prepare("
         INSERT INTO notifications
         (user_id, notification_title, notification_message, notification_type)
-        VALUES (
-            {$get['tenant_id']},
-            'Payment Update',
-            '$msg',
-            'payment'
-        )
+        VALUES (?, 'Payment Update', ?, 'payment')
     ");
+
+    $stmt2->bind_param("is", $get['tenant_id'], $msg);
+    $stmt2->execute();
 }
 
-header("Location: paymentmanagement.php");
+/* =========================
+   REDIRECT BACK
+   ========================= */
+header("Location: payments.php");
 exit();
 ?>
