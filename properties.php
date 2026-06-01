@@ -162,11 +162,6 @@ $propertyQuery = mysqli_query(
                       </span>
                     </span>
                   </div>
-
-                  <a href="<?php echo $isRented ? '#' : 'login.php'; ?>" 
-                    class="btn py-2 px-3 <?php echo $btnClass; ?>">
-                    <?php echo $isRented ? 'Rented' : 'Book Now'; ?>
-                  </a>
                 </div>
               </div>
             </div>
