@@ -91,7 +91,7 @@ $newMaintenanceQuery = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total 
      FROM maintenance_requests 
-     WHERE is_read = 0"
+     WHERE request_status = 'pending'"
 );
 $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
 ?>
