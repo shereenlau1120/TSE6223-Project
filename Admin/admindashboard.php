@@ -117,7 +117,7 @@ if ($totalIncome == null) {
     $totalIncome = 0;
 }
 
-//Monthly Income for Chart
+// Monthly Income for Chart
 $monthlyIncomeQuery = mysqli_query(
     $conn,
     "SELECT
@@ -129,13 +129,27 @@ $monthlyIncomeQuery = mysqli_query(
      ORDER BY month ASC"
 );
 
-$months = [];
-$incomeData = [];
+// Convert DB result into map (month => income)
+$incomeMap = [];
 
-while($row = mysqli_fetch_assoc($monthlyIncomeQuery))
-{
-    $months[] = $row['month'];
-    $incomeData[] = $row['total_income'];
+while ($row = mysqli_fetch_assoc($monthlyIncomeQuery)) {
+    $incomeMap[$row['month']] = (float)$row['total_income'];
+}
+
+// Build full 12 months (current year)
+$currentYear = date('Y');
+
+$allMonths = [];
+$allIncome = [];
+
+for ($m = 1; $m <= 12; $m++) {
+
+    $monthKey = sprintf("%04d-%02d", $currentYear, $m);
+
+    $allMonths[] = $monthKey;
+
+    // if no data → 0
+    $allIncome[] = $incomeMap[$monthKey] ?? 0;
 }
 
 //For the transaction history section
@@ -149,6 +163,7 @@ $transactionQuery = mysqli_query(
      ORDER BY payment_date DESC
      LIMIT 10"
 );
+
 ?>
 
 <!DOCTYPE html>
@@ -322,8 +337,6 @@ $transactionQuery = mysqli_query(
             <!-- End Logo Header -->
           </div>
 
-
-
           <!-- Top Navigation Bar -->
           <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
             <div class="container-fluid">
@@ -496,7 +509,7 @@ $transactionQuery = mysqli_query(
                 </div>
                     <div id="myChartLegend"></div>
                   <div class="card-body">
-                    <div class="chart-container" style="height:375px; width: 100%;">
+                    <div class="chart-container" style="height:375px; width: 100%;overflow-x:auto;">
                       <canvas id="statisticsChart"></canvas>
                     </div>
                   </div>
@@ -680,6 +693,7 @@ $transactionQuery = mysqli_query(
 
     <!-- Chart JS -->
     <script src="assets/js/plugin/chart.js/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
     <!-- jQuery Sparkline -->
     <script src="assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
@@ -702,148 +716,103 @@ $transactionQuery = mysqli_query(
 
     <!-- Kaiadmin JS -->
     <script src="assets/js/kaiadmin.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     
+<!-- For rendering the monthly income chart -->
 <script>
-var ctx = document.getElementById("statisticsChart").getContext("2d");
-Chart.register(ChartDataLabels);
-new Chart(ctx, {
-    plugins: [ChartDataLabels],
-    type: "bar",
+document.addEventListener("DOMContentLoaded", function () {
 
-            data: { labels: <?php echo json_encode($months); ?>, 
-            datasets: [{ label: "Monthly Income", data: <?php echo json_encode($incomeData); ?>, 
-            backgroundColor: [ 
-            "#4BC0C0", 
-            "#36A2EB", 
-            "#1E88E5", 
-            "#F4D35E", 
-            "#FF9800", 
-            "#8E044D", 
-            "#F4435E", 
-            "#5AD17B", 
-            "#5C6BC0", 
-            "#E056D8", 
-            "#26A69A", 
-            "#7E57C2" ], 
-            
-            borderRadius: 10, 
-            borderSkipped: false, 
-            barThickness: 50, 
-            maxBarThickness: 60, 
-            barPercentage: 0.8, 
-            categoryPercentage: 0.9 
-        }] 
-    }, 
-    
-    options: { 
-      responsive: true, 
-      maintainAspectRatio: false, 
-      layout: { 
-        padding: { 
-          top: 30 } 
-        }, 
-        
-        plugins: { 
-          datalabels: { 
-            anchor: 'end', 
-            align: 'top', 
-            color: '#000', 
-            font: { 
-              weight: 'bold', 
-              size: 12 }, 
-              
-              formatter: function(value) { 
-                return 'RM ' + value; } 
-              }, 
-              
-        legend: { 
-          display: false 
-        }, 
-        
-        title: { 
-          display: true, 
-          text: "Monthly Rental Income Report", 
-          font: { 
-            size: 22, 
-            weight: 'bold' 
-          } 
-        } 
-      }, 
-      
-      scales: { 
-        y: { 
-          beginAtZero: true, 
+    const canvas = document.getElementById("statisticsChart");
 
-          title: { 
-          display: true, 
-          text: "Income (RM)" 
-        }, 
-        
-          grid: { 
-            color: "#E5E5E5" 
-          } 
-        }, 
-        
-          x: { 
-            title: { 
-              display: true, 
-              text: "Month" 
-            }, 
-            
-          grid: { 
-            display: false 
-          } 
-        } 
-      } 
-    } 
-  });
+    if (!canvas) {
+        console.log("Chart canvas not found");
+        return;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    // Fixed 12-month colors
+    const monthColors = [
+        "#4BC0C0", "#36A2EB", "#FF6384", "#FFCE56",
+        "#9966FF", "#FF9F40", "#8E044D", "#5AD17B",
+        "#5C6BC0", "#E056D8", "#26A69A", "#7E57C2"
+    ];
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: <?php echo json_encode($allMonths); ?>,
+            datasets: [{
+                label: "Monthly Income",
+                data: <?php echo json_encode($allIncome); ?>,
+                backgroundColor: monthColors,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return "RM " + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+});
 </script>
 
 <!-- For printing the income report section -->
- <script>
+<script>
 function printIncomeReport() {
+    var chartCanvas = document.getElementById("statisticsChart");
+    var chartImage = chartCanvas.toDataURL("image/png"); // Convert canvas to image
 
-    var reportContent =
-        document.getElementById("incomeReport").innerHTML;
+    var reportContent = document.getElementById("incomeReport").outerHTML;
 
-    var printWindow = window.open('', '', 'width=1000,height=700');
+    // Replace canvas with image in printContent
+    reportContent = reportContent.replace(
+        chartCanvas.outerHTML,
+        `<img src="${chartImage}" style="width:100%; height:auto;">`
+    );
+
+    var printWindow = window.open('', '', 'width=1200,height=800');
 
     printWindow.document.write(`
         <html>
         <head>
             <title>Income Report</title>
-
-            <link rel="stylesheet"
-                  href="assets/css/bootstrap.min.css">
-
+            <link rel="stylesheet" href="assets/css/bootstrap.min.css">
             <style>
-                body{
-                    padding:20px;
-                    font-family:Arial,sans-serif;
-                }
-
-                .btn,
-                .card-tools{
-                    display:none;
-                }
+                body { padding:20px; font-family:Arial,sans-serif; }
+                .btn, .card-tools, .no-print { display: none !important; }
             </style>
         </head>
-
-        <body>
+        <body onload="window.print(); window.close();">
             ${reportContent}
         </body>
-
         </html>
     `);
 
     printWindow.document.close();
-
-    setTimeout(function() {
-        printWindow.print();
-        printWindow.close();
-    }, 500);
 }
 </script>
-  </body>
+</body>
 </html>
