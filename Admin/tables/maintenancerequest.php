@@ -324,7 +324,7 @@ $result = mysqli_query($conn, "
                           <div class="u-text">
                           <h4><?php echo htmlspecialchars($admin['full_name']); ?></h4>
                           <p class="text-muted"><?php echo htmlspecialchars($admin['email']); ?></p>
-                          <a href="profile.php" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                          <a href="..\profile.php" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                           </div>
                         </div>
                       </li>
