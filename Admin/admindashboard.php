@@ -287,7 +287,7 @@ $transactionQuery = mysqli_query(
               </li>
              
               <li class="nav-item">
-                <a href="reports.php">
+                <a href="tables/reports.php">
                   <i class="fas fa-file"></i>
                   <p>Report</p>
                 </a>
