@@ -12,6 +12,12 @@ $userId = $_SESSION['user_id'];
 $email = $_SESSION['email'];
 $userName = $_SESSION['user_name'];
 
+// Mark all admin notifications as read when page is opened
+$updateRead = mysqli_query(
+    $conn,
+    "UPDATE users SET is_read = 1 WHERE role = 'admin' AND is_read = 0"
+);
+
 // Total Tenants
 $tenantQuery = mysqli_query(
     $conn,
@@ -95,29 +101,27 @@ $newMaintenanceQuery = mysqli_query(
 );
 $newMaintenance = mysqli_fetch_assoc($newMaintenanceQuery)['total'];
 
-// Auto-expire leases
-mysqli_query($conn, "
-    UPDATE leases
-    SET lease_status='expired'
-    WHERE lease_end_date < CURDATE()
-    AND lease_status='active'
+/* RENTAL INCOME */
+$income = mysqli_query($conn, "
+    SELECT DATE_FORMAT(payment_date, '%Y-%m') AS month,
+           SUM(payment_amount) AS total
+    FROM payments
+    WHERE payment_status='paid'
+    GROUP BY month
 ");
 
-// Fetch leases
-$leaseQuery = mysqli_query(
-  $conn, 
-  "SELECT
-        l.*,
-        u.full_name,
-        u.email,
-        p.property_name,
-        p.property_type
-    FROM leases l
-    INNER JOIN users u
-        ON l.tenant_id = u.user_id
-    INNER JOIN properties p
-        ON l.property_id = p.property_id
-    ORDER BY l.lease_id DESC
+/* OCCUPANCY */
+$occupancy = mysqli_query($conn, "
+    SELECT occupancy_status, COUNT(*) AS total
+    FROM properties
+    GROUP BY occupancy_status
+");
+
+/* MAINTENANCE */
+$maintenance = mysqli_query($conn, "
+    SELECT request_status, COUNT(*) AS total
+    FROM maintenance_requests
+    GROUP BY request_status
 ");
 ?>
 
@@ -125,7 +129,7 @@ $leaseQuery = mysqli_query(
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Property Management</title>
+    <title>Reports</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -162,16 +166,22 @@ $leaseQuery = mysqli_query(
     <link rel="stylesheet" href="../assets/css/kaiadmin.min.css" />
 
     <style>
-    .is-invalid {
-      border: 2px solid #dc3545 !important;
-    }
-
-    .error-text {
-      color: #dc3545;
-      font-size: 12px;
-      display: block;
-      margin-top: 4px;
-      min-height: 18px;
+    /*body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; color: #333; }*/
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .header img { height: 60px; }
+    .header h1 { font-size: 28px; margin: 0; color: #2c3e50; }
+    h2.section { background-color: #2c3e50; color: #fff; padding: 10px 15px; margin-top: 40px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #34495e; color: #fff; }
+    tr:nth-child(even) { background-color: #f7f7f7; }
+    tfoot { font-weight: bold; background-color: #ecf0f1; }
+    button { padding: 10px 25px; margin-bottom: 20px; background-color: #2c3e50; color: #fff; border: none; cursor: pointer; border-radius: 4px; }
+    button:hover { background-color: #34495e; }
+    @media print {
+    button { display: none; }
+    body { margin: 0; }
+    h2.section { page-break-before: always; }
     }
     </style>
 
@@ -247,7 +257,7 @@ $leaseQuery = mysqli_query(
                 </a>
               </li>
 
-              <li class="nav-item active">
+              <li class="nav-item">
                 <a href="lease.php">
                   <i class="fas fa-chalkboard-teacher"></i>
                   <p>Lease</p>
@@ -270,7 +280,7 @@ $leaseQuery = mysqli_query(
                 </a>
               </li>
              
-              <li class="nav-item">
+              <li class="nav-item active">
                 <a href="reports.php">
                   <i class="fas fa-file"></i>
                   <p>Report</p>
@@ -361,31 +371,20 @@ $leaseQuery = mysqli_query(
         <div class="container">
           <div class="page-inner">
             <div class="page-header">
-              <h3 class="fw-bold mb-3">Lease Management Table</h3>
+              <h3 class="fw-bold mb-3">Reports</h3>
               <ul class="breadcrumbs mb-3">
               </ul>
             </div>
 
-
-            <?php if (isset($_GET['error']) && $_GET['error'] == 'duplicate_name') { ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <strong>Error!</strong> Lease already exists.
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <?php } ?>
-
-            <!-- Table for Lease Management -->
+            <!-- Table for Admin Management -->
             <div class="row">
-              <div class="col-md-12">
+              
+            <div class="col-md-12">
+                <div class="col-md-12">
                 <div class="card">
                   <div class="card-header">
-                    <div class="d-flex align-items-center">
-                      <h4 class="card-title">Add New Lease</h4>
-                      <button class="btn btn-primary btn-round ms-auto" data-bs-toggle="modal" data-bs-target="#addRowModal">
-                        <i class="fa fa-plus"></i>
-                        Add New Lease
-                      </button>
-                    </div>
+                    <div class="card-head-row">
+                      <div class="card-title"></div>
                   </div>
                   <div class="card-body">
                     <!-- Modal -->
@@ -399,223 +398,58 @@ $leaseQuery = mysqli_query(
                       <div class="modal-dialog" role="document">
                         <div class="modal-content">
                           <div class="modal-header border-0">
-                            <h5 class="modal-title">
-                              <span class="fw-mediumbold"> New</span>
-                              <span class="fw-light"> Lease </span>
-                            </h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
                           </div>
-                          <form id="addLeaseForm" action="addlease.php" method="POST" enctype="multipart/form-data">
-                          <div class="modal-body">
-                          <p class="small">Fill all fields to create a new lease</p>
-
-                          <div class="row">
-                          <!-- Tenant -->
-                          <div class="col-md-12">
-                          <div class="form-group form-group-default">
-                          <label>Tenant <span class="text-danger">*</span></label>
-                          <select name="tenant_id" class="form-control" required>
-                          <option value="">Select Tenant</option>
-                          <?php
-                            $tenants = mysqli_query($conn, "SELECT user_id, full_name FROM users WHERE role='tenant' AND status='active'");
-                            while($t = mysqli_fetch_assoc($tenants)) {
-                            echo "<option value='{$t['user_id']}'>{$t['full_name']}</option>";
-                          }
-                          ?>
-                          </select>
-                          <small class="error-text"></small>
-                          </div>
-                          </div>
-
-                          <!-- Property -->
-                          <div class="col-md-12">
-                          <div class="form-group form-group-default">
-                          <label>Property <span class="text-danger">*</span></label>
-                          <select name="property_id" class="form-control" required>
-                          <option value="">Select Property</option>
-                          <?php
-                          $properties = mysqli_query($conn, "SELECT property_id, property_name FROM properties WHERE occupancy_status='available'");
-                          while($p = mysqli_fetch_assoc($properties)) {
-                          echo "<option value='{$p['property_id']}'>{$p['property_name']}</option>";
-                          }
-                          ?>
-                          </select>
-                          <small class="error-text"></small>
-                          </div>
-                          </div>
-
-                          <!-- Lease Start Date -->
-                          <div class="col-md-6">
-                          <div class="form-group form-group-default">
-                          <label>Start Date <span class="text-danger">*</span></label>
-                          <input type="date" name="lease_start_date" class="form-control" required>
-                          <small class="error-text"></small>
-                          </div>
-                          </div>
-
-                          <!-- Lease End Date -->
-                          <div class="col-md-6">
-                          <div class="form-group form-group-default">
-                          <label>End Date <span class="text-danger">*</span></label>
-                          <input type="date" name="lease_end_date" class="form-control" required>
-                          <small class="error-text"></small>
-                          </div>
-                          </div>
-
-                          <!-- Monthly Rent -->
-                          <div class="col-md-6">
-                          <div class="form-group form-group-default">
-                          <label>Monthly Rent (RM) <span class="text-danger">*</span></label>
-                          <input type="number" step="0.01" name="monthly_rent" class="form-control" min="0" required>
-                          <small class="error-text"></small>
-                          </div>
-                          </div>
-
-                          <!--Lease Agreement File-->
-                          <div class="col-md-12">
-                          <div class="form-group form-group-default">
-                          <label style="font-weight:bold;"> Lease Agreement PDF
-                          <span class="text-danger">*</span>
-                          </label>
-
-                          <input type="file" name="lease_document" id="leaseDocument" class="form-control" accept=".pdf" required>
-                          <small class="text-muted"> Upload signed lease agreement (.pdf only)</small>
-                          <small id="documentError" class="error-text"></small>
-                          </div>
-                          </div>
-
-                          <!-- Lease Status -->
-                          <div class="col-md-6">
-                          <div class="form-group form-group-default">
-                          <label>Status <span class="text-danger">*</span></label>
-                          <input type="text" class="form-control" value="Active" readonly>
-                          <input type="hidden" name="lease_status" value="active">
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                  <div class="modal-footer border-0">
-                  <button type="submit" name="add_lease" class="btn btn-primary">Add Lease</button>
-                  <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-                  </div>
-                </form>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     <div class="table-responsive">
-                      <table
-                        id="add-row"
-                        class="display table table-striped table-hover"
-                      >
-                        <thead>
-                          <tr>
-                            <th>Lease ID</th>
-                            <th>Tenant</th>
-                            <th>Property</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Monthly Rent</th>
-                            <th>Status</th>
-                            <th>Agreement</th>        
-                            <th style="width: 10%">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                        <?php while($lease = mysqli_fetch_assoc($leaseQuery)) { ?>
+                    <div class="header">
+                    <img src="../assets/img/kaiadmin/logo_light.svg" alt="Logo">
+                    <h1>Property Rental System Report</h1>
+                </div>
 
-                        <tr style="text-align:center;">
+                <button onclick="window.print()">Print / Save as PDF</button>
 
-                          <td><?= $lease['lease_id']; ?></td>
-
-                          <td>
-                            <?= htmlspecialchars($lease['full_name']); ?>
-                          </td>
-
-                          <td>
-                            <?= htmlspecialchars($lease['property_name']); ?>
-                          </td>
-
-                          <td>
-                            <?= $lease['lease_start_date']; ?>
-                          </td>
-
-                          <td>
-                            <?= $lease['lease_end_date']; ?>
-                          </td>
-
-                          <td>
-                            RM <?= number_format($lease['monthly_rent'], 2); ?>
-                          </td>
-
-                          <td>
-                          <?php
-                            $status = $lease['lease_status'];
-                            if($status == 'active'){
-                              echo '<span class="badge bg-success">Active</span>';
-                            }
-                            elseif($status == 'expired'){
-                              echo '<span class="badge bg-warning text-dark">Expired</span>';
-                            }
-                            else{
-                              echo '<span class="badge bg-danger">Terminated</span>';
-                            }
-                          ?>
-                          </td>
-
-                          <td>
-                          <?php if (!empty($lease['lease_document'])) { ?>
-                            <a href="../uploads/<?= htmlspecialchars($lease['lease_document']); ?>"
-                              target="_blank"
-                              class="btn btn-sm btn-info">
-                              View PDF
-                            </a>
-                          <?php } else { ?>
-                            <span class="text-muted">No file</span>
-                          <?php } ?>
-                          </td>
-
-                          <td>
-                          <div class="d-flex justify-content-center gap-3">
-
-                          <!--View-->
-                          <a href="viewlease.php?id=<?= $lease['lease_id']; ?>"
-                            class="text-decoration-none">
-                          <i class="fa fa-eye fa-lg"></i><br>
-                          <small class="text-dark">View</small>
-                          </a>
-
-                          <!--Edit-->
-                          <a href="updatelease.php?id=<?= $lease['lease_id']; ?>"
-                          class="text-decoration-none">
-                          <i class="fa fa-edit fa-lg"></i><br>
-                          <small class="text-dark">Edit</small>
-                          </a>
-
-                          <!-- RENEW -->
-                          <a href="renewlease.php?id=<?= $lease['lease_id']; ?>"
-                          class="text-decoration-none text-warning">
-                          <i class="fa fa-sync fa-lg"></i><br>
-                          <small class="text-dark">Renew</small>
-                          </a>
-
-                          <!-- TERMINATE -->
-                          <a href="terminatelease.php?id=<?= $lease['lease_id']; ?>"
-                          class="text-decoration-none text-danger"
-                          onclick="return confirm('Terminate this lease?')">
-                          <i class="fa fa-times-circle fa-lg"></i><br>
-                          <small class="text-dark">Terminate</small>
-                          </a>
-                      </div>
-                    </td>
-                  </tr>
+                <h2 class="section">Rental Income</h2>
+                <table>
+                <tr><th>Month</th><th>Total Income (RM)</th></tr>
+                <?php $income_total = 0; ?>
+                <?php while($row = mysqli_fetch_assoc($income)) { 
+                    $income_total += $row['total'];
+                ?>
+                <tr>
+                <td><?= $row['month'] ?></td>
+                <td><?= number_format($row['total'],2) ?></td>
+                </tr>
                 <?php } ?>
-                </tbody>
-                      </table>
+                <tfoot>
+                <tr><td>Total</td><td><?= number_format($income_total,2) ?></td></tr>
+                </tfoot>
+                </table>
+
+                <h2 class="section">Occupancy Status</h2>
+                <table>
+                <tr><th>Status</th><th>Total Properties</th></tr>
+                <?php while($row = mysqli_fetch_assoc($occupancy)) { ?>
+                <tr>
+                <td><?= $row['occupancy_status'] ?></td>
+                <td><?= $row['total'] ?></td>
+                </tr>
+                <?php } ?>
+                </table>
+
+                <h2 class="section">Maintenance Requests</h2>
+                <table>
+                <tr><th>Status</th><th>Total Requests</th></tr>
+                <?php while($row = mysqli_fetch_assoc($maintenance)) { ?>
+                <tr>
+                <td><?= ucfirst($row['request_status']) ?></td>
+                <td><?= $row['total'] ?></td>
+                </tr>
+                <?php } ?>
+                </table>
                     </div>
                   </div>
                 </div>

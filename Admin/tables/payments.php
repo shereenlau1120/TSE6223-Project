@@ -255,30 +255,10 @@ $result = mysqli_query($conn, "
               </li>
              
               <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#report">
+                <a href="reports.php">
                   <i class="fas fa-file"></i>
                   <p>Report</p>
-                  <span class="caret"></span>
                 </a>
-                <div class="collapse" id="report">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Rental Income</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Occupancy Rate</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Maintenance Activities</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
               </li>
             </ul>
           </div>
