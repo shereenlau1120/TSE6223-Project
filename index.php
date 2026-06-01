@@ -487,18 +487,88 @@
       </div>
     </div>
 
+    <!-- Continue for the bottom section -->
+    <div class="section">
+      <div class="container">
+        <div class="row">
+          <div
+            class="col-lg-4 mb-5 mb-lg-0"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            <div class="contact-info">
+              <div class="address mt-2">
+                <i class="icon-room"></i>
+                <h4 class="mb-2">Location:</h4>
+                <p>
+                  Jalan Ayer Keroh Lama, 75450 Bukit Beruang,<br />
+                  Melaka
+                </p>
+              </div>
+
+              <div class="open-hours mt-4">
+                <i class="icon-clock-o"></i>
+                <h4 class="mb-2">Open Hours:</h4>
+                <p>
+                  Monday-Sunday:<br />
+                  9:00 AM - 5:00 PM
+                </p>
+              </div>
+
+              <div class="email mt-4">
+                <i class="icon-envelope"></i>
+                <h4 class="mb-2">Email:</h4>
+                <p>admin@gmail.com</p>
+              </div>
+
+              <div class="phone mt-4">
+                <i class="icon-phone"></i>
+                <h4 class="mb-2">Call:</h4>
+                <p>+60-125845236</p>
+                <p>+60-1155485623</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
+            <!--Embedded the google maps-->
+            <div class="map-container">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.724484534347!2d102.219793!3d2.190656!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31d1a5e0c8c9d5b7%3A0x4c6b5e5e5e5e5e5e!2sJalan%20Ayer%20Keroh%20Lama%2C%2075450%20Bukit%20Beruang%2C%20Melaka!5e0!3m2!1sen!2smy!4v1634567890123!5m2!1sen!2smy"
+                width="100%"
+                height="450"
+                style="border:0;"
+                allowfullscreen=""
+                loading="lazy"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /.untree_co-section -->
+
     <div class="site-footer">
       <div class="container">
         <div class="row">
           <div class="col-lg-4">
             <div class="widget">
               <h3>Contact</h3>
-              <address>43 Raymouth Rd. Baltemoer, London 3910</address>
+              <address>Ayer Keroh, Melaka</address>
               <ul class="list-unstyled links">
-                <li><a href="tel://11234567890">+1(123)-456-7890</a></li>
-                <li><a href="tel://11234567890">+1(123)-456-7890</a></li>
                 <li>
-                  <a href="mailto:info@mydomain.com">info@mydomain.com</a>
+                  <span class="icon-phone"></span>
+                  <a></a>
+                  <a href="tel://125845236">+60-125845236</a>
+                </li>
+                <li>
+                  <span class="icon-phone"></span>
+                  <a></a>
+                  <a href="tel://1155485623">+60-1155485623</a>
+                </li>
+                <li>
+                  <span class="icon-envelope"></span>
+                  <a></a>
+                  <a href="mailto:adminl@gmail.com">admin@gmail.com</a>
                 </li>
               </ul>
             </div>
@@ -509,20 +579,11 @@
             <div class="widget">
               <h3>Sources</h3>
               <ul class="list-unstyled float-start links">
-                <li><a href="#">About us</a></li>
-                <li><a href="#">Services</a></li>
-                <li><a href="#">Vision</a></li>
-                <li><a href="#">Mission</a></li>
-                <li><a href="#">Terms</a></li>
-                <li><a href="#">Privacy</a></li>
-              </ul>
-              <ul class="list-unstyled float-start links">
-                <li><a href="#">Partners</a></li>
-                <li><a href="#">Business</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Blog</a></li>
-                <li><a href="#">FAQ</a></li>
-                <li><a href="#">Creative</a></li>
+                <li><a href="about.html">About us</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="terms.html">Terms</a></li>
+                <li><a href="privacy.html">Privacy</a></li>
+                <li><a href="faq.html">FAQ</a></li>
               </ul>
             </div>
             <!-- /.widget -->
@@ -532,29 +593,20 @@
             <div class="widget">
               <h3>Links</h3>
               <ul class="list-unstyled links">
-                <li><a href="#">Our Vision</a></li>
-                <li><a href="#">About us</a></li>
-                <li><a href="#">Contact us</a></li>
               </ul>
 
               <ul class="list-unstyled social">
                 <li>
-                  <a href="#"><span class="icon-instagram"></span></a>
+                  <a><span class="icon-instagram"></span></a>
                 </li>
                 <li>
-                  <a href="#"><span class="icon-twitter"></span></a>
+                  <a><span class="icon-twitter"></span></a>
                 </li>
                 <li>
-                  <a href="#"><span class="icon-facebook"></span></a>
+                  <a><span class="icon-facebook"></span></a>
                 </li>
                 <li>
-                  <a href="#"><span class="icon-linkedin"></span></a>
-                </li>
-                <li>
-                  <a href="#"><span class="icon-pinterest"></span></a>
-                </li>
-                <li>
-                  <a href="#"><span class="icon-dribbble"></span></a>
+                  <a><span class="icon-linkedin"></span></a>
                 </li>
               </ul>
             </div>
@@ -583,8 +635,10 @@
               <!-- License information: https://untree.co/license/ -->
             </p>
             <div>
-              Distributed by
-              <a href="https://themewagon.com/" target="_blank">themewagon</a>
+             TSE6223 Software Engineering Fundamentals - Group Project
+            </div>
+            <div>
+              Property Rental Management System
             </div>
           </div>
         </div>

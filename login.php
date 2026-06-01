@@ -415,7 +415,6 @@ if (isset($_POST['login'])) {
             <div class="widget">
               <h3>Links</h3>
               <ul class="list-unstyled links">
-                <li><a href="contact.html">Contact us</a></li>
               </ul>
 
               <ul class="list-unstyled social">
