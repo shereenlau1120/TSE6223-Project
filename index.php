@@ -105,8 +105,6 @@ $propertyQuery = mysqli_query(
             <ul class="js-clone-nav d-none d-lg-inline-block text-start site-menu float-end">
               <li class="active"><a href="index.php">Home</a></li>
               <li> <a href="properties.php">Properties</a></li>
-              <li><a href="about.html">About Us</a></li>
-              <li><a href="contact.html">Contact Us</a></li>
               <li><a href="login.php">Login/Sign Up</a></li>
             </ul>
 
@@ -520,11 +518,7 @@ $propertyQuery = mysqli_query(
             <div class="widget">
               <h3>Sources</h3>
               <ul class="list-unstyled float-start links">
-                <li><a href="about.html">About us</a></li>
-                <li><a href="services.html">Services</a></li>
-                <li><a href="terms.html">Terms</a></li>
-                <li><a href="privacy.html">Privacy</a></li>
-                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="properties.php">Property</a></li>
               </ul>
             </div>
             <!-- /.widget -->

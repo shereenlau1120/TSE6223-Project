@@ -46,6 +46,14 @@ $propertyQuery = mysqli_query(
     <title>
       Property &mdash; Free Bootstrap 5 Website Template by Untree.co
     </title>
+    <style>
+    .btn-secondary.disabled, .btn-secondary:disabled {
+    background-color: #555 !important; /* dark grey */
+    color: #fff !important;
+    cursor: not-allowed;
+    pointer-events: none; /* makes it unclickable */
+    }
+    </style>
   </head>
   <body>
     <div class="site-mobile-menu site-navbar-target">
@@ -68,8 +76,6 @@ $propertyQuery = mysqli_query(
             >
               <li><a href="index.php">Home</a></li>
               <li class="active"> <a href="properties.php">Properties</a></li>
-              <li><a href="about.html">About Us</a></li>
-              <li><a href="contact.html">Contact Us</a></li>
               <li><a href="login.php">Login/Sign Up</a></li>
             </ul>
 
@@ -112,79 +118,83 @@ $propertyQuery = mysqli_query(
       </div>
     </div>
 
+    <!-- Properties Section -->
     <div class="section section-properties">
-      <div class="container">
-        <div class="row">
-          <?php while($property = mysqli_fetch_assoc($propertyQuery)) { ?>
+        <div class="container">
+          <div class="row">
+            <?php while($property = mysqli_fetch_assoc($propertyQuery)) { 
+                $isRented = ($property['occupancy_status'] === 'rented');
+                $btnClass = $isRented ? 'btn-secondary disabled' : 'btn-primary';
+            ?>
+            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 mb-4">
+              <div class="property-item mb-30">
 
-          <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 mb-4">
-            <div class="property-item mb-30">
-
-              <a href="property-single.php?id=<?php echo $property['property_id']; ?>" class="img">
-                <img src="Admin/<?php echo htmlspecialchars($property['property_image']); ?>" 
-                    class="img-fluid"
-                    style="height:250px; width:100%; object-fit:cover;"
-                    alt="<?php echo htmlspecialchars($property['property_name']); ?>">
-              </a>
-
-              <div class="property-content">
-                
-                <div class="price mb-2">
-                  <span>RM <?php echo number_format($property['rental_price'], 2); ?></span>
-                </div>
-
-                <span class="d-block mb-2 text-black-50">
-                  <?php echo htmlspecialchars($property['address']); ?>
-                </span>
-
-                <span class="city d-block mb-3">
-                  <?php echo ucfirst($property['property_type']); ?>
-                </span>
-
-                <div class="specs d-flex mb-4">
-                  <span class="d-flex align-items-center me-3">
-                    <span class="icon-bed me-2"></span>
-                    <span class="caption"><?php echo $property['number_of_rooms'] ?? 0; ?> rooms</span>
-                  </span>
-
-                  <span class="d-flex align-items-center">
-                    <span class="icon-bath me-2"></span>
-                    <span class="caption">
-                      <?php echo ucfirst($property['occupancy_status']); ?>
-                    </span>
-                  </span>
-                </div>
-
-                <a href="property-single.php?id=<?php echo $property['property_id']; ?>" 
-                  class="btn btn-primary py-2 px-3">
-                  See details
+                <a href="<?php echo $isRented ? '#' : 'login.php'; ?>">
+                  <img src="Admin/<?php echo htmlspecialchars($property['property_image']); ?>" 
+                      class="img-fluid"
+                      style="height:250px; width:100%; object-fit:cover;"
+                      alt="<?php echo htmlspecialchars($property['property_name']); ?>">
                 </a>
+
+                <div class="property-content">
+                  <div class="price mb-2">
+                    <span>RM <?php echo number_format($property['rental_price'], 2); ?></span>
+                  </div>
+
+                  <span class="d-block mb-2 text-black-50">
+                    <?php echo htmlspecialchars($property['address']); ?>
+                  </span>
+
+                  <span class="city d-block mb-3">
+                    <?php echo ucfirst($property['property_type']); ?>
+                  </span>
+
+                  <div class="specs d-flex mb-4">
+                    <span class="d-flex align-items-center me-3">
+                      <span class="icon-bed me-2"></span>
+                      <span class="caption"><?php echo $property['number_of_rooms'] ?? 0; ?> rooms</span>
+                    </span>
+
+                    <span class="d-flex align-items-center">
+                      <span class="icon-bath me-2"></span>
+                      <span class="caption">
+                        <?php echo ucfirst($property['occupancy_status']); ?>
+                      </span>
+                    </span>
+                  </div>
+
+                  <a href="<?php echo $isRented ? '#' : 'login.php'; ?>" 
+                    class="btn py-2 px-3 <?php echo $btnClass; ?>">
+                    <?php echo $isRented ? 'Rented' : 'Book Now'; ?>
+                  </a>
+                </div>
               </div>
             </div>
-            </div>
-          <?php } ?>
-            <!-- .item -->
+            <?php } ?>
           </div>
-        </div>
-        <div class="row align-items-center py-5">
-          <div class="col-lg-3">Pagination (1 of 10)</div>
-          <div class="col-lg-6 text-center">
-            <div class="custom-pagination">
-              <a href="#" class="active">1</a>
-              <a href="#">2</a>
-              <a href="#">3</a>
-              <a href="#">4</a>
-              <a href="#">5</a>
+
+          <!-- Centered Pagination -->
+          <div class="row py-5">
+            <div class="col-12 d-flex justify-content-center">
+              <div class="custom-pagination">
+                <?php 
+                  // Dynamic pagination: count total records
+                  $totalProperties = mysqli_num_rows($propertyQuery);
+                  $propertiesPerPage = 9; // Adjust how many per page
+                  $totalPages = ceil($totalProperties / $propertiesPerPage);
+
+                  for($i = 1; $i <= $totalPages; $i++) {
+                    echo '<a href="properties.php?page='.$i.'"'.($i==1?' class="active"':'').'>'.$i.'</a>';
+                  }
+                ?>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
-    </div>
-    </div>
 
     <!-- Continue for the bottom section -->
-    
-
     <div class="site-footer">
     <div class="container">
         <div class="row">
@@ -217,11 +227,7 @@ $propertyQuery = mysqli_query(
             <div class="widget">
               <h3>Sources</h3>
               <ul class="list-unstyled float-start links">
-                <li><a href="about.html">About us</a></li>
-                <li><a href="services.html">Services</a></li>
-                <li><a href="terms.html">Terms</a></li>
-                <li><a href="privacy.html">Privacy</a></li>
-                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="properties.php">Property</a></li>
               </ul>
             </div>
             <!-- /.widget -->
