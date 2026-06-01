@@ -203,7 +203,7 @@ $propertyQuery = mysqli_query(
                         </span>
                       </div>
 
-                      <a href="propertiesitem.php?id=<?php echo $property['property_id']; ?>" class="btn btn-primary py-2 px-3">
+                      <a href="properties.php" class="btn btn-primary py-2 px-3">
                         See details
                       </a>
                     </div>
