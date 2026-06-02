@@ -142,7 +142,7 @@ $propertyQuery = mysqli_query(
                   </div>
 
                   <span class="d-block mb-2 text-black-50">
-                    <?php echo htmlspecialchars($property['address']); ?>
+                    <?php echo htmlspecialchars($property['address']);?>
                   </span>
 
                   <span class="city d-block mb-3">
