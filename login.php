@@ -82,7 +82,7 @@ if (isset($_POST['login'])) {
             header("Location: Admin/admindashboard.php");
             exit();
         } elseif ($user['role'] == 'tenant') {
-            header("Location: User\html\index.html");
+            header("Location: User/dashboard.php");  // NEW PATH
             exit();
         } else {
             header("Location: index.php");
